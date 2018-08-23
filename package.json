@@ -1,0 +1,40 @@
+{
+  "name": "blog-backend",
+  "version": "1.0.0",
+  "description": "YH's blog backend that is used Express and Postgres to build",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf ./build && tsc",
+    "watch": "rm -rf ./build/**/* && tsc --watch",
+    "check": "./node_modules/.bin/tslint --type-check --project ./tsconfig.json && npm run build"
+  },
+  "keywords": [
+    "express",
+    "postgres",
+    "blog",
+    "socket.io",
+    "redis"
+  ],
+  "author": "YAOHAO",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^10.1.4",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "finale-rest": "^1.0.0",
+    "pg": "^7.4.3",
+    "pg-hstore": "^2.3.2",
+    "reflect-metadata": "^0.1.12",
+    "require-all": "^3.0.0",
+    "sequelize": "^4.38.0",
+    "sequelize-typescript": "^1.0.0-alpha.3",
+    "tsc": "^1.20150623.0",
+    "tslint": "^5.10.0",
+    "typescript": "^2.8.3",
+    "typescript-eslint-parser": "^15.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.16.0",
+    "@types/mocha": "^5.2.0"
+  }
+}
