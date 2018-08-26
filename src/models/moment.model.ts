@@ -1,11 +1,11 @@
 import { Table, Column, Model, CreatedAt, UpdatedAt, HasMany, BelongsTo, ForeignKey, BelongsToMany } from 'sequelize-typescript';
-import User from './user.model';
-import File from './file.model';
-import MomentApprove from './momentapprove.model';
-import MomentDisapprove from './momentdisapprove.model';
+import User from './User.model';
+import Archive from './Archive.model';
+import MomentApprove from './MomentApprove.model';
+import MomentDisapprove from './MomentDisapprove.model';
 
 
-@Table
+@Table({ timestamps: false })
 export default class Moment extends Model<Moment> {
 
   @ForeignKey(() => User)
@@ -15,8 +15,8 @@ export default class Moment extends Model<Moment> {
   @BelongsTo(() => User)
   user: User;
 
-  @HasMany(() => File)
-  images: File[];
+  @HasMany(() => Archive)
+  images: Archive[];
 
   @Column
   content: string;

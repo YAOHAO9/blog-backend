@@ -3,7 +3,7 @@
 import * as finale from 'finale-rest';
 
 import app, { sequelize } from '../server';
-import User from '../models/user.model';
+import User from '../models/User.model';
 
 finale.initialize({
     app: app,

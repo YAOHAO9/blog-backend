@@ -1,11 +1,10 @@
 import { Table, Column, Model, CreatedAt, UpdatedAt, BelongsTo, ForeignKey, DataType } from 'sequelize-typescript';
-import Moment from './moment.model';
-import User from './user.model';
-import Article from './article.model';
+import Moment from './Moment.model';
+import User from './User.model';
+import Article from './Article.model';
 
-@Table
+@Table({ timestamps: false })
 export default class Comment extends Model<Comment> {
-
 
   @ForeignKey(() => User)
   @Column
@@ -24,7 +23,6 @@ export default class Comment extends Model<Comment> {
   @Column(DataType.INTEGER)
   @ForeignKey(() => Article)
   article: number;
-
 
   @CreatedAt
   createdAt: Date;

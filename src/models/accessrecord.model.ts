@@ -1,7 +1,7 @@
 import { Table, Column, Model, CreatedAt, UpdatedAt, ForeignKey, BelongsTo } from 'sequelize-typescript';
-import User from './user.model';
+import User from './User.model';
 
-@Table
+@Table({ timestamps: false })
 export default class AccessRecord extends Model<AccessRecord> {
 
   @ForeignKey(() => User)

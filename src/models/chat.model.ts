@@ -1,7 +1,7 @@
 import { Table, Column, Model, CreatedAt, UpdatedAt, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
-import User from './user.model';
+import User from './User.model';
 
-@Table
+@Table({ timestamps: false })
 export default class Chat extends Model<Chat> {
 
   @Column
