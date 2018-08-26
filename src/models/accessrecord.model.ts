@@ -1,12 +1,15 @@
-import { Table, Column, Model, CreatedAt, UpdatedAt, DataType, ForeignKey } from 'sequelize-typescript';
+import { Table, Column, Model, CreatedAt, UpdatedAt, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import User from './user.model';
 
 @Table
 export default class AccessRecord extends Model<AccessRecord> {
 
-  @Column(DataType.INTEGER)
   @ForeignKey(() => User)
-  user: number;
+  @Column
+  userId: number;
+
+  @BelongsTo(() => User)
+  user: User;
 
   @Column
   ip: string;

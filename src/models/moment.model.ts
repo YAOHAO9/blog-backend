@@ -1,4 +1,4 @@
-import { Table, Column, Model, CreatedAt, UpdatedAt, ForeignKey, HasMany } from 'sequelize-typescript';
+import { Table, Column, Model, CreatedAt, UpdatedAt, HasMany, BelongsTo, ForeignKey } from 'sequelize-typescript';
 import User from './user.model';
 import File from './file.model';
 
@@ -6,9 +6,12 @@ import File from './file.model';
 @Table
 export default class Moment extends Model<Moment> {
 
-  @Column
   @ForeignKey(() => User)
-  user: number;
+  @Column
+  userId: number;
+
+  @BelongsTo(() => User)
+  user: User;
 
   @HasMany(() => File)
   images: File[];
