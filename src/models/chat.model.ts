@@ -1,4 +1,4 @@
-import { Table, Column, Model, CreatedAt, UpdatedAt, DataType, HasOne } from 'sequelize-typescript';
+import { Table, Column, Model, CreatedAt, UpdatedAt, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import User from './user.model';
 
 @Table
@@ -7,10 +7,18 @@ export default class Chat extends Model<Chat> {
   @Column
   session: string;
 
-  @HasOne(() => User)
+  @ForeignKey(() => User)
+  @Column
+  senderId: number;
+
+  @BelongsTo(() => User)
   sender: User;
 
-  @HasOne(() => User)
+  @ForeignKey(() => User)
+  @Column
+  receiverId: number;
+
+  @BelongsTo(() => User)
   receiver: User;
 
   @Column

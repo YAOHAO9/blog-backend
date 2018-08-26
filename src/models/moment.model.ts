@@ -1,6 +1,8 @@
-import { Table, Column, Model, CreatedAt, UpdatedAt, HasMany, BelongsTo, ForeignKey } from 'sequelize-typescript';
+import { Table, Column, Model, CreatedAt, UpdatedAt, HasMany, BelongsTo, ForeignKey, BelongsToMany } from 'sequelize-typescript';
 import User from './user.model';
 import File from './file.model';
+import MomentApprove from './momentapprove.model';
+import MomentDisapprove from './momentdisapprove.model';
 
 
 @Table
@@ -25,10 +27,10 @@ export default class Moment extends Model<Moment> {
   @Column
   ip: string;
 
-  @HasMany(() => User)
+  @BelongsToMany(() => User, () => MomentApprove)
   approves: User[];
 
-  @HasMany(() => User)
+  @BelongsToMany(() => User, () => MomentDisapprove)
   disapproves: User[];
 
   @CreatedAt

@@ -1,7 +1,13 @@
-import { Table, Column, Model, CreatedAt, UpdatedAt, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, CreatedAt, UpdatedAt, DataType, ForeignKey } from 'sequelize-typescript';
+import Moment from './moment.model';
 
 @Table
 export default class File extends Model<File> {
+
+  @ForeignKey(() => Moment)
+  @Column
+  momentId: number;
+
   @Column
   fd: string;
 
