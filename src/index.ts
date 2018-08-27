@@ -1,15 +1,22 @@
 
-import * as RequireAll from 'require-all';
+import * as initializeCustomeApi from 'require-all';
 import * as bodyParser from 'body-parser';
 import app, { errorHandler, notFoundHandler, sequelize } from './server';
+import initializeRestfulApi from './restful';
 
 const start = async () => {
   // Start postgres
   await sequelize.sync();
-  // Init api
+
+  // config
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
-  RequireAll(__dirname + '/api');
+
+  // api
+  initializeCustomeApi(__dirname + '/api');
+  initializeRestfulApi();
+
+  // error 
   app.use(errorHandler);
   app.use('*', notFoundHandler);
 

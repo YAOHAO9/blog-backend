@@ -1,6 +1,6 @@
 import { Table, Column, Model, CreatedAt, UpdatedAt, IsEmail } from 'sequelize-typescript';
 
-@Table({ timestamps: true })
+@Table
 export default class User extends Model<User> {
   @Column
   name: string;

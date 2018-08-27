@@ -1,7 +1,7 @@
 import { Table, Column, Model, CreatedAt, UpdatedAt, DataType, ForeignKey } from 'sequelize-typescript';
 import Moment from './Moment.model';
 
-@Table({ timestamps: true })
+@Table
 export default class Archive extends Model<Archive> {
 
   @ForeignKey(() => Moment)

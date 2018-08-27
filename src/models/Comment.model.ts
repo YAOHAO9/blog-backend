@@ -3,7 +3,7 @@ import Moment from './Moment.model';
 import User from './User.model';
 import Article from './Article.model';
 
-@Table({ timestamps: true })
+@Table
 export default class Comment extends Model<Comment> {
 
   @ForeignKey(() => User)

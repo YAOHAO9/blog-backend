@@ -2,7 +2,7 @@ import { Table, ForeignKey, Model, Column, CreatedAt, UpdatedAt } from "sequeliz
 import Article from "./Article.model";
 import User from "./User.model";
 
-@Table({ timestamps: true })
+@Table
 export default class ArticleDisapprove extends Model<ArticleDisapprove> {
 
     @ForeignKey(() => Article)

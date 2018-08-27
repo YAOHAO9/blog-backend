@@ -4,7 +4,7 @@ import User from './User.model';
 import ArticleApprove from './ArticleApprove.model';
 import ArticleDisapprove from './ArticleDisapprove.model';
 
-@Table({ timestamps: true })
+@Table
 export default class Article extends Model<Article> {
 
   @ForeignKey(() => User)

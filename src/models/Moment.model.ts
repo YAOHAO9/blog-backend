@@ -5,7 +5,7 @@ import MomentApprove from './MomentApprove.model';
 import MomentDisapprove from './MomentDisapprove.model';
 
 
-@Table({ timestamps: true })
+@Table
 export default class Moment extends Model<Moment> {
 
   @ForeignKey(() => User)

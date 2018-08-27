@@ -15,6 +15,13 @@ export const sequelize = new Sequelize({
     acquire: 30000,
     idle: 10000
   },
+  define: {
+    charset: 'utf8',
+    dialectOptions: {
+      collate: 'utf8_general_ci'
+    },
+    timestamps: true
+  },
   username: 'postgres',
   password: '',
   modelPaths: [__dirname + '/models']

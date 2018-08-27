@@ -1,7 +1,7 @@
 import { Table, Column, Model, CreatedAt, UpdatedAt, DataType, ForeignKey } from 'sequelize-typescript';
 import Article from './Article.model';
 
-@Table({ timestamps: true })
+@Table
 export default class ArticleContent extends Model<ArticleContent> {
 
   @ForeignKey(() => Article)
