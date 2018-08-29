@@ -1,11 +1,16 @@
 import * as express from 'express';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { Sequelize } from 'sequelize-typescript';
+import * as bluebird from 'bluebird';
+import * as redis from 'redis';
+import { Result } from './interfaces/Respond';
+bluebird.promisifyAll(redis.RedisClient.prototype);
+bluebird.promisifyAll(redis.Multi.prototype);
+
 
 const app = express()
 export default app;
 
-// Connect postgresm'postgres://postgres@localhost:5432/mobileblog'
 export const sequelize = new Sequelize({
   database: 'mobileblog',
   dialect: 'postgres',
@@ -27,6 +32,11 @@ export const sequelize = new Sequelize({
   modelPaths: [__dirname + '/models']
 });
 
+export const redisClient = redis.createClient();
+redisClient.on("error", function (e) {
+  console.log("Error " + e);
+});
+
 export const errorWrapper = (handler: RequestHandler): RequestHandler => {
   return async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {
@@ -39,13 +49,11 @@ export const errorWrapper = (handler: RequestHandler): RequestHandler => {
 
 export const errorHandler = (e: Error, _: Request, res: Response, next: () => void) => {
   if (e) {
-    return res.status(500).send({ message: e.message, stack: e.stack });
+    return res.status(500).json(new Result(e));
   }
   return next();
 };
 
 export const notFoundHandler = (_, res: Response) => {
-  res.status(404).send({
-    message: '404 not found',
-  });
+  return res.status(404).json(new Result(new Error('Resource not found.')));
 };
