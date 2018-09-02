@@ -6,23 +6,23 @@ export default class Archive extends Model<Archive> {
 
   @ForeignKey(() => Moment)
   @Column
-  momentId: number;
+  public momentId: number;
 
   @Column
-  fd: string;
+  public fd: string;
 
   @Column(DataType.FLOAT)
-  size: number;
+  public size: number;
 
   @Column
-  type: string;
+  public type: string;
 
   @Column
-  filename: string;
+  public filename: string;
 
   @CreatedAt
-  createdAt: Date;
+  public createdAt: Date;
 
   @UpdatedAt
-  updatedAt: Date;
+  public updatedAt: Date;
 }

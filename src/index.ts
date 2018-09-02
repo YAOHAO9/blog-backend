@@ -15,18 +15,18 @@ const start = async () => {
   initializeCustomeApi(__dirname + '/apis');
   initializeRestfulApi();
 
-  // error 
+  // error
   app.use(errorHandler);
   app.use('*', notFoundHandler);
 
-  // config port 
+  // config port
   const port = process.env.PORT || 3000;
   app.listen(port, () => {
     console.log('Listening on: ' + port);
   });
-}
+};
 
 start()
-  .catch(e => {
-    console.error(e)
-  })
+  .catch((e) => {
+    console.error(e);
+  });

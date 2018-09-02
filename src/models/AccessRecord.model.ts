@@ -6,35 +6,35 @@ export default class AccessRecord extends Model<AccessRecord> {
 
   @ForeignKey(() => User)
   @Column
-  userId: number;
+  public userId: number;
 
   @BelongsTo(() => User)
-  user: User;
+  public user: User;
 
   @Column
-  ip: string;
+  public ip: string;
 
   @Column
-  url: string;
+  public url: string;
 
   @Column
-  method: string;
+  public method: string;
 
   @Column
-  params: string;
+  public params: string;
 
   @Column
-  body: string;
+  public body: string;
 
   @Column
-  location: string;
+  public location: string;
 
   @Column
-  date: Date;
+  public date: Date;
 
   @CreatedAt
-  createdAt: Date;
+  public createdAt: Date;
 
   @UpdatedAt
-  updatedAt: Date;
+  public updatedAt: Date;
 }

@@ -1,21 +1,21 @@
-import { Table, ForeignKey, Model, Column, CreatedAt, UpdatedAt } from "sequelize-typescript";
-import User from "./User.model";
-import Moment from "./Moment.model";
+import { Table, ForeignKey, Model, Column, CreatedAt, UpdatedAt } from 'sequelize-typescript';
+import User from './User.model';
+import Moment from './Moment.model';
 
 @Table
 export default class MomentApprove extends Model<MomentApprove> {
 
     @ForeignKey(() => Moment)
     @Column
-    articleId: number;
+    public articleId: number;
 
     @ForeignKey(() => User)
     @Column
-    authorId: number;
+    public authorId: number;
 
     @CreatedAt
-    createdAt: Date;
+    public createdAt: Date;
 
     @UpdatedAt
-    updatedAt: Date;
+    public updatedAt: Date;
 }

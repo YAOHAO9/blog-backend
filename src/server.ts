@@ -7,8 +7,7 @@ import { Result } from './interfaces/Respond';
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 
-
-const app = express()
+const app = express();
 export default app;
 
 export const sequelize = new Sequelize({
@@ -18,23 +17,23 @@ export const sequelize = new Sequelize({
     max: 5,
     min: 0,
     acquire: 30000,
-    idle: 10000
+    idle: 10000,
   },
   define: {
     charset: 'utf8',
     dialectOptions: {
-      collate: 'utf8_general_ci'
+      collate: 'utf8_general_ci',
     },
-    timestamps: true
+    timestamps: true,
   },
   username: 'postgres',
   password: '',
-  modelPaths: [__dirname + '/models']
+  modelPaths: [__dirname + '/models'],
 });
 
 export const redisClient = redis.createClient();
-redisClient.on("error", function (e) {
-  console.log("Error " + e);
+redisClient.on('error', (e) => {
+  console.log('Error ' + e);
 });
 
 export const errorWrapper = (handler: RequestHandler): RequestHandler => {

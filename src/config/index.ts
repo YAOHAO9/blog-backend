@@ -7,8 +7,8 @@ export interface ConfigInterface {
         },
         hash: {
             algorithm: string;
-        }
-    }
+        },
+    };
 }
 
 const Config: ConfigInterface = {
@@ -20,9 +20,9 @@ const Config: ConfigInterface = {
         },
         hash: {
             algorithm: 'sha256',
-        }
+        },
 
-    }
-}
+    },
+};
 
-export default Object.assign(Config, {})
+export default Object.assign(Config, {});

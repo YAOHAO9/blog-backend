@@ -8,25 +8,25 @@ export default class Comment extends Model<Comment> {
 
   @ForeignKey(() => User)
   @Column
-  userId: number;
+  public userId: number;
 
   @BelongsTo(() => User)
-  user: User;
+  public user: User;
 
   @Column
-  content: string;
+  public content: string;
 
   @Column(DataType.INTEGER)
   @ForeignKey(() => Moment)
-  moment: number;
+  public moment: number;
 
   @Column(DataType.INTEGER)
   @ForeignKey(() => Article)
-  article: number;
+  public article: number;
 
   @CreatedAt
-  createdAt: Date;
+  public createdAt: Date;
 
   @UpdatedAt
-  updatedAt: Date;
+  public updatedAt: Date;
 }

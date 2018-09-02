@@ -6,14 +6,14 @@ export default class ArticleContent extends Model<ArticleContent> {
 
   @ForeignKey(() => Article)
   @Column
-  articleId: number;
+  public articleId: number;
 
   @Column(DataType.TEXT)
-  content: string;
+  public content: string;
 
   @CreatedAt
-  createdAt: Date;
+  public createdAt: Date;
 
   @UpdatedAt
-  updatedAt: Date;
+  public updatedAt: Date;
 }

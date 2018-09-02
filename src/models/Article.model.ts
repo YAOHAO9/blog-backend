@@ -1,4 +1,6 @@
-import { Table, Column, Model, CreatedAt, UpdatedAt, DataType, BelongsTo, HasOne, ForeignKey, BelongsToMany } from 'sequelize-typescript';
+import {
+  Table, Column, Model, CreatedAt, UpdatedAt, DataType, BelongsTo, HasOne, ForeignKey, BelongsToMany,
+} from 'sequelize-typescript';
 import ArticleContent from './ArticleContent.model';
 import User from './User.model';
 import ArticleApprove from './ArticleApprove.model';
@@ -9,32 +11,32 @@ export default class Article extends Model<Article> {
 
   @ForeignKey(() => User)
   @Column
-  userId: number;
+  public userId: number;
 
   @BelongsTo(() => User)
-  user: User;
+  public user: User;
 
   @Column(DataType.INTEGER)
-  icon: number;
+  public icon: number;
 
   @Column
-  title: string;
+  public title: string;
 
   @Column
-  description: string;
+  public description: string;
 
   @HasOne(() => ArticleContent)
-  content: ArticleContent;
+  public content: ArticleContent;
 
   @BelongsToMany(() => User, () => ArticleApprove)
-  approves: User[];
+  public approves: User[];
 
   @BelongsToMany(() => User, () => ArticleDisapprove)
-  disapproves: User[];
+  public disapproves: User[];
 
   @CreatedAt
-  createdAt: Date;
+  public createdAt: Date;
 
   @UpdatedAt
-  updatedAt: Date;
+  public updatedAt: Date;
 }

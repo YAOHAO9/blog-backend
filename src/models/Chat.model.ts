@@ -5,37 +5,37 @@ import User from './User.model';
 export default class Chat extends Model<Chat> {
 
   @Column
-  session: string;
+  public session: string;
 
   @ForeignKey(() => User)
   @Column
-  senderId: number;
+  public senderId: number;
 
   @BelongsTo(() => User)
-  sender: User;
+  public sender: User;
 
   @ForeignKey(() => User)
   @Column
-  receiverId: number;
+  public receiverId: number;
 
   @BelongsTo(() => User)
-  receiver: User;
+  public receiver: User;
 
   @Column
-  type: string;
+  public type: string;
 
   @Column(DataType.TEXT)
-  content: string;
+  public content: string;
 
   @Column
-  img: string;
+  public img: string;
 
   @Column
-  read: boolean;
+  public read: boolean;
 
   @CreatedAt
-  createdAt: Date;
+  public createdAt: Date;
 
   @UpdatedAt
-  updatedAt: Date;
+  public updatedAt: Date;
 }

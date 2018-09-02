@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 import Config from '../config';
 export default crypto;
 
-const cipherConfig = Config.Crytpo.cipher
+const cipherConfig = Config.Crytpo.cipher;
 
 export const encrypt = (source: string) => {
     let dest = '';
@@ -10,7 +10,7 @@ export const encrypt = (source: string) => {
     dest += cipher.update(source, 'utf8', 'hex');
     dest += cipher.final('hex');
     return dest;
-}
+};
 
 export const decrypt = (dest: string) => {
     let source = '';
@@ -18,8 +18,8 @@ export const decrypt = (dest: string) => {
     source += decipher.update(dest, 'hex', 'utf8');
     source += decipher.final('utf8');
     return source;
-}
+};
 
 export const hash = (source: string) => {
-    return crypto.createHash(Config.Crytpo.hash.algorithm).update(source, 'utf8').digest('hex')
-}
+    return crypto.createHash(Config.Crytpo.hash.algorithm).update(source, 'utf8').digest('hex');
+};

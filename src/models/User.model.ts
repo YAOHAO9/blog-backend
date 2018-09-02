@@ -3,33 +3,33 @@ import { Table, Column, Model, CreatedAt, UpdatedAt, IsEmail } from 'sequelize-t
 @Table
 export default class User extends Model<User> {
   @Column
-  name: string;
+  public name: string;
 
   @Column
-  loginTimes: number;
+  public loginTimes: number;
 
   @Column
-  mmmmName: string;
+  public mmmmName: string;
 
   @Column
-  isAdmin: boolean;
+  public isAdmin: boolean;
 
   @IsEmail
   @Column
-  email: string;
+  public email: string;
 
   @Column
-  password: string;
+  public password: string;
 
   @Column
-  avator: number;
+  public avator: number;
 
   @Column
-  socketId: string;
+  public socketId: string;
 
   @CreatedAt
-  createdAt: Date;
+  public createdAt: Date;
 
   @UpdatedAt
-  updatedAt: Date;
+  public updatedAt: Date;
 }
