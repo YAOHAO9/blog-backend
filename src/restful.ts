@@ -7,7 +7,7 @@ import AccessRecord from './models/AccessRecord.model';
 import Archive from './models/Archive.model';
 import Article from './models/Article.model';
 import Chat from './models/Chat.model';
-import Comment from './models/Comment.model';
+import Discussion from './models/Discussion.model';
 import Moment from './models/Moment.model';
 
 const initializeRestfulApi = () => {
@@ -33,7 +33,7 @@ const initializeRestfulApi = () => {
         endpoints: ['/chat', '/chat/:id'],
     });
     finale.resource({
-        model: Comment,
+        model: Discussion,
         endpoints: ['/comment', '/comment/:id'],
     });
     finale.resource({

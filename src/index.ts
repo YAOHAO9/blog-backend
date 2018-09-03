@@ -1,12 +1,12 @@
 
 import * as initializeCustomeApi from 'require-all';
-import app, { errorHandler, notFoundHandler, sequelize } from './server';
+import app, { errorHandler, notFoundHandler, initializeSequelize } from './server';
 import initializeRestfulApi from './restful';
 import { initializeMiddlewares } from './middlewares';
 
 const start = async () => {
   // Start postgres
-  await sequelize.sync();
+  await initializeSequelize();
 
   // Middlewares
   initializeMiddlewares();

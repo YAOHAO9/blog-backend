@@ -4,7 +4,7 @@ import User from './User.model';
 import Article from './Article.model';
 
 @Table
-export default class Comment extends Model<Comment> {
+export default class Discussion extends Model<Discussion> {
 
   @ForeignKey(() => User)
   @Column
@@ -18,11 +18,11 @@ export default class Comment extends Model<Comment> {
 
   @Column(DataType.INTEGER)
   @ForeignKey(() => Moment)
-  public moment: number;
+  public momentId: number;
 
   @Column(DataType.INTEGER)
   @ForeignKey(() => Article)
-  public article: number;
+  public articleId: number;
 
   @CreatedAt
   public createdAt: Date;

@@ -2,10 +2,10 @@ import parseImgSrc from '../services/ParseImgSrc';
 import * as express from 'express';
 import Server, { errorWrapper } from '../server';
 import { Result } from '../interfaces/Respond';
-import Article from '../models/Article.model';
+import Article, { ArticleMethod } from '../models/Article.model';
 import ArticleContent from '../models/ArticleContent.model';
 import User from '../models/User.model';
-import Comment from '../models/Comment.model';
+import Discussion from '../models/Discussion.model';
 
 import { bgImgUrl, getArticleAndSaveByUrl } from '../services/ArticleService';
 import upload, { saveUploadFile } from '../services/UploadService';
@@ -23,23 +23,42 @@ const router = express.Router()
         }
         let [content] = await parseImgSrc(req.body.content);
         content = await bgImgUrl(content);
+        const articleContent = await new ArticleContent({ content }).save();
         const article = await new Article({
-            userId: 1,
+            userId: (await User.findOne({ where: { isAdmin: true } })).id,
             title: req.body.title,
             description: req.body.description,
-            content: await new ArticleContent({ content }).save(),
+            content: articleContent,
             icon: saveUploadFile(req.file),
-        });
+        }).save();
+        articleContent.articleId = article.id;
+        await articleContent.save();
         return res.json(new Result(article));
     }))
     .get('/', errorWrapper(async (_: express.Request, res: express.Response) => {
-        const articles = await Article.find({ include: [User, ArticleContent, Comment], limit: 10 });
-        return res.json(new Result(articles));
+        const articles: Article = await Article.find({
+            include: [
+                ArticleContent,
+                Discussion,
+            ], limit: 10,
+        });
+        const articleJson = articles.toJSON();
+        articleJson.user = await (articles as ArticleMethod).getUser();
+        articleJson.disapproves = await (articles as ArticleMethod).getDisapproves();
+        articleJson.approves = await (articles as ArticleMethod).getApproves();
+        return res.json(new Result(articleJson));
     }))
     .get('/:id', errorWrapper(async (req: express.Request, res: express.Response) => {
-        const article = await Article.findById(req.param('id'),
-            { include: [User, ArticleContent, Comment] });
-        return res.json(new Result(article));
+        const article: Article = await Article.findById(req.param('id'), {
+            include: [
+                ArticleContent,
+            ], limit: 10,
+        });
+        const articleJson = article.toJSON();
+        articleJson.user = await (article as ArticleMethod).getUser();
+        articleJson.disapproves = await (article as ArticleMethod).getDisapproves();
+        articleJson.approves = await (article as ArticleMethod).getApproves();
+        return res.json(new Result(articleJson));
     }))
     .get('segmentFaultNote', errorWrapper(async (req: express.Request, res: express.Response) => {
         const articles = await getArticleAndSaveByUrl('https://segmentfault.com/u/yaohao/notes',
