@@ -9,15 +9,9 @@ const router = Router()
         if (req.session.user.isAdmin) {
             return res.json();
         }
-        AccessRecord.create(Object.assign(req.body, { user: req.session.user, ip: getClientIp(req), date }))
-            .then((accessRecord) => {
-                res.json(accessRecord);
-            })
-            .catch((e) => {
-                console.log(e);
-            });
-
-        return null;
+        const accessRecord = new AccessRecord(Object.assign(req.body,
+            { user: req.session.user, ip: getClientIp(req), date })).save();
+        return res.json(accessRecord);
     }));
 
-Server.use('/api/bot', router);
+Server.use('/api/access-record', router);
