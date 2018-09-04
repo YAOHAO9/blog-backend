@@ -20,16 +20,24 @@ const parseImgSrc = async (content: string, baseHttp: string = null) => {
                 continue;
             }
         }
-        const task = new Promise<string>((resolve, reject) => {
-            const fileFd = path.join('.tmp', 'uploads', hash(src));
-            const writeStream = fs.createWriteStream(fileFd);
-            superagent(src).pipe(writeStream);
-            writeStream.on('finish', () => {
-                resolve(fileFd);
-            });
-            writeStream.on('error', (err) => {
-                reject(err);
-            });
+        const task = new Promise<string>(async (resolve, reject) => {
+            try {
+                const folderPath = path.join('.tmp', 'uploads');
+                if (fs.existsSync(folderPath)) {
+                    console.log('exist');
+                }
+                const fileFd = path.join('.tmp', 'uploads', hash(src));
+                const writeStream = fs.createWriteStream(fileFd);
+                superagent(src).pipe(writeStream);
+                writeStream.on('finish', () => {
+                    resolve(fileFd);
+                });
+                writeStream.on('error', (e) => {
+                    reject(e);
+                });
+            } catch (e) {
+                reject(e);
+            }
         })
             .then(async (fileFd) => {
                 const file = await new Archive({
@@ -38,7 +46,7 @@ const parseImgSrc = async (content: string, baseHttp: string = null) => {
                     filename: src,
                     size: 0,
                 }).save();
-                $(img).attr('src', 'api/file/find/' + file.id);
+                $(img).attr('src', 'api/archive/' + file.id);
                 return file.id;
             });
         tasks.push(task);

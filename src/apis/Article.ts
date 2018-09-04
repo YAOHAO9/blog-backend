@@ -23,30 +23,45 @@ const router = express.Router()
         }
         let [content] = await parseImgSrc(req.body.content);
         content = await bgImgUrl(content);
-        const articleContent = await new ArticleContent({ content }).save();
         const article = await new Article({
             userId: (await User.findOne({ where: { isAdmin: true } })).id,
             title: req.body.title,
             description: req.body.description,
-            content: articleContent,
             icon: saveUploadFile(req.file),
         }).save();
-        articleContent.articleId = article.id;
-        await articleContent.save();
+        await new ArticleContent({ content, articleId: article.id }).save();
         return res.json(new Result(article));
     }))
     .get('/', errorWrapper(async (_: express.Request, res: express.Response) => {
-        const articles: Article = await Article.find({
+        const articles: Article[] = await Article.findAll({
             include: [
                 ArticleContent,
                 Discussion,
             ], limit: 10,
         });
-        const articleJson = articles.toJSON();
-        articleJson.user = await (articles as ArticleMethod).getUser();
-        articleJson.disapproves = await (articles as ArticleMethod).getDisapproves();
-        articleJson.approves = await (articles as ArticleMethod).getApproves();
-        return res.json(new Result(articleJson));
+        const articleJsons = await Promise.all(articles.map(async (article) => {
+            const articleJson = article.toJSON();
+            articleJson.user = await (article as ArticleMethod).getUser();
+            articleJson.disapproves = await (article as ArticleMethod).getDisapproves();
+            articleJson.approves = await (article as ArticleMethod).getApproves();
+            return articleJson;
+        }));
+        return res.json(new Result(articleJsons));
+    }))
+    .get('/segmentFaultNote', errorWrapper(async (req: express.Request, res: express.Response) => {
+        const articleType = 'segmentFaultNote';
+        await Article.destroy({ where: { type: articleType } });
+        await ArticleContent.destroy({ where: { articleId: null } });
+        const articles = await getArticleAndSaveByUrl('https://segmentfault.com/u/yaohao/notes',
+            `sf_remember=${req.query.sf_remember}`, '#codeMirror', articleType);
+        res.json(new Result(articles));
+    }))
+    .get('/segmentFaultArticle', errorWrapper(async (req: express.Request, res: express.Response) => {
+        const articleType = 'segmentFaultArticle';
+        await Article.destroy({ where: { type: articleType } });
+        const articles = await getArticleAndSaveByUrl('https://segmentfault.com/u/yaohao/articles',
+            `sf_remember=${req.query.sf_remember}`, '#myEditor', articleType);
+        res.json(new Result(articles));
     }))
     .get('/:id', errorWrapper(async (req: express.Request, res: express.Response) => {
         const article: Article = await Article.findById(req.param('id'), {
@@ -59,16 +74,6 @@ const router = express.Router()
         articleJson.disapproves = await (article as ArticleMethod).getDisapproves();
         articleJson.approves = await (article as ArticleMethod).getApproves();
         return res.json(new Result(articleJson));
-    }))
-    .get('segmentFaultNote', errorWrapper(async (req: express.Request, res: express.Response) => {
-        const articles = await getArticleAndSaveByUrl('https://segmentfault.com/u/yaohao/notes',
-            `sf_remember=${req.query.sf_remember}`, '#codeMirror');
-        res.json(new Result(articles));
-    }))
-    .get('segmentFaultArticle', errorWrapper(async (req: express.Request, res: express.Response) => {
-        const articles = await getArticleAndSaveByUrl('https://segmentfault.com/u/yaohao/articles',
-            `sf_remember=${req.query.sf_remember}`, '#myEditor');
-        res.json(new Result(articles));
     }));
 
 Server.use('/api/article', router);

@@ -9,10 +9,11 @@ import Article from '../models/Article.model';
 import ArticleContent from '../models/ArticleContent.model';
 
 import { hash } from '../utils/Crypto';
+import User from '../models/User.model';
 
 const markdown = markdownIt();
 
-const getHtmlByUrl = (url, cookie) => {
+const fetchHtmlByUrl = (url, cookie) => {
     return new Promise((resolve, reject) => {
         superagent
             .get(url)
@@ -32,11 +33,15 @@ const formatDate = (date) => {
     if (date.indexOf('年') === -1) {
         date = `${(new Date()).getFullYear()}年${date}`;
     }
-    return new Date(date.replace('年', '-').replace('月', '-').replace('日', ''));
+    const newDate = new Date(date.replace('年', '-').replace('月', '-').replace('日', ''));
+    if ((newDate + '') === 'Invalid Date') {
+        return new Date();
+    }
+    return newDate;
 };
 
-export const getArticleAndSaveByUrl = async (url, cookie, textAreaId) => {
-    const html = await getHtmlByUrl(url, cookie);
+export const getArticleAndSaveByUrl = async (url, cookie, textAreaId, articleType) => {
+    const html = await fetchHtmlByUrl(url, cookie);
     const $ = cheerio.load(html);
     const list = $('body > div.profile > div > div > div > div.col-md-10.profile-mine > ul > li');
     const notePromises = (Array(list.length).fill(0)).map(async (_, index) => {
@@ -46,23 +51,24 @@ export const getArticleAndSaveByUrl = async (url, cookie, textAreaId) => {
             item('div > div.col-md-2 > span.profile-mine__content--date')[0].firstChild.data);
         const note = item('div > div.profile-mine__content--title-warp > a')[0];
         const url = 'https://segmentfault.com' + note.attribs.href.split('?')[0] + '/edit';
-        const html = await getHtmlByUrl(url, cookie);
+        const html = await fetchHtmlByUrl(url, cookie);
         const $ = cheerio.load(html);
         const data = markdown.render($(textAreaId)[0].firstChild.data.replace(/$/mg, '  '));
         const origin = 'https://segmentfault.com';
         // tslint:disable-next-line:prefer-const
         let [newHtml, fileIds] = await parseImgSrc(data, origin);
         newHtml = `<div class="markdown">${newHtml}</div>`;
-        return new ArticleContent({ content: newHtml }).save()
-            .then((content: ArticleContent) => {
-                return new Article({
-                    userId: 1,
-                    title,
-                    content,
-                    createdAt,
-                    icon: fileIds[0] ? fileIds[0] : null,
-                }).save();
-            });
+
+        const article = await new Article({
+            userId: (await User.findOne({ where: { isAdmin: true } })).id,
+            title,
+            createdAt,
+            icon: fileIds[0] ? fileIds[0] : null,
+            type: articleType,
+        }).save();
+        const articleContent = await new ArticleContent({ content: newHtml, articleId: article.id }).save();
+        article.content = articleContent;
+        return article;
     });
     return Promise.all(notePromises);
 };

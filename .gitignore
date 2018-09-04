@@ -7,3 +7,5 @@ build/*
 
 test.js
 test.ts
+
+.tmp

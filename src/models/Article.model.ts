@@ -31,6 +31,9 @@ export default class Article extends Model<Article>   {
   @Column
   public description: string;
 
+  @Column
+  public type: string;
+
   @HasOne(() => ArticleContent)
   public content: ArticleContent;
 
