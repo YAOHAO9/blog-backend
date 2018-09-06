@@ -1,5 +1,5 @@
 import parseImgSrc from '../services/ParseImgSrc';
-import * as express from 'express';
+import { Request, Response, Router } from 'express';
 import Server, { errorWrapper } from '../server';
 import { Result } from '../interfaces/Respond';
 import Article, { ArticleMethod } from '../models/Article.model';
@@ -10,8 +10,8 @@ import Discussion from '../models/Discussion.model';
 import { bgImgUrl, getArticleAndSaveByUrl } from '../services/ArticleService';
 import Upload, { saveUploadFile } from '../services/UploadService';
 
-const router = express.Router()
-    .post('/create', Upload.single('icon'), errorWrapper(async (req: express.Request, res: express.Response) => {
+const router = Router()
+    .post('/create', Upload.single('icon'), errorWrapper(async (req: Request, res: Response) => {
         if (!req.body.title) {
             return res.status(403).send(new Result(new Error('标题不能为空')));
         }
@@ -32,7 +32,7 @@ const router = express.Router()
         await new ArticleContent({ content, articleId: article.id }).save();
         return res.json(new Result(article));
     }))
-    .get('/', errorWrapper(async (_: express.Request, res: express.Response) => {
+    .get('/', errorWrapper(async (_: Request, res: Response) => {
         const articles: Article[] = await Article.findAll({
             include: [
                 ArticleContent,
@@ -48,7 +48,7 @@ const router = express.Router()
         }));
         return res.json(new Result(articleJsons));
     }))
-    .get('/segmentFaultNote', errorWrapper(async (req: express.Request, res: express.Response) => {
+    .get('/segmentFaultNote', errorWrapper(async (req: Request, res: Response) => {
         const articleType = 'segmentFaultNote';
         await Article.destroy({ where: { type: articleType } });
         await ArticleContent.destroy({ where: { articleId: null } });
@@ -56,14 +56,14 @@ const router = express.Router()
             `sf_remember=${req.query.sf_remember}`, '#codeMirror', articleType);
         res.json(new Result(articles));
     }))
-    .get('/segmentFaultArticle', errorWrapper(async (req: express.Request, res: express.Response) => {
+    .get('/segmentFaultArticle', errorWrapper(async (req: Request, res: Response) => {
         const articleType = 'segmentFaultArticle';
         await Article.destroy({ where: { type: articleType } });
         const articles = await getArticleAndSaveByUrl('https://segmentfault.com/u/yaohao/articles',
             `sf_remember=${req.query.sf_remember}`, '#myEditor', articleType);
         res.json(new Result(articles));
     }))
-    .get('/:id', errorWrapper(async (req: express.Request, res: express.Response) => {
+    .get('/:id', errorWrapper(async (req: Request, res: Response) => {
         const article: Article = await Article.findById(req.param('id'), {
             include: [
                 ArticleContent,

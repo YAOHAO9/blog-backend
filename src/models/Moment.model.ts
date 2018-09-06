@@ -6,6 +6,12 @@ import Archive from './Archive.model';
 import MomentApprove from './MomentApprove.model';
 import MomentDisapprove from './MomentDisapprove.model';
 
+export interface MomentMethod extends Moment {
+  getUser: () => User;
+  getDisapproves: () => User[];
+  getApproves: () => User[];
+}
+
 @Table
 export default class Moment extends Model<Moment> {
 
