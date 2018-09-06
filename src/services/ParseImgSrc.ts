@@ -1,10 +1,9 @@
 import * as cheerio from 'cheerio';
 import * as superagent from 'superagent';
-import * as path from 'path';
-import * as fs from 'fs';
 import { hash } from '../utils/Crypto';
 import Archive from '../models/Archive.model';
 import Config from '../config';
+import { path, fs } from '../utils/Tool';
 
 const parseImgSrc = async (content: string, baseHttp: string = null) => {
     const $ = cheerio.load(content);

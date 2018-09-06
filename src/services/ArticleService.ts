@@ -1,8 +1,6 @@
 import * as cheerio from 'cheerio';
 import * as superagent from 'superagent';
 import * as markdownIt from 'markdown-it';
-import * as path from 'path';
-import * as fs from 'fs';
 import parseImgSrc from './ParseImgSrc';
 import Archive from '../models/Archive.model';
 import Article from '../models/Article.model';
@@ -11,6 +9,7 @@ import ArticleContent from '../models/ArticleContent.model';
 import { hash } from '../utils/Crypto';
 import User from '../models/User.model';
 import Config from '../config';
+import { path, fs } from '../utils/Tool';
 
 const markdown = markdownIt();
 

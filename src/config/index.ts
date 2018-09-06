@@ -1,5 +1,5 @@
 import { SequelizeOptions } from 'sequelize-typescript/lib/sequelize/types/SequelizeOptions';
-import * as path from 'path';
+import { path } from '../utils/Tool';
 
 export const uploadFolderName = 'UploadsOfBlogBackend';
 export interface ConfigInterface {

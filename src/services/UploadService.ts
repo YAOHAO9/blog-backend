@@ -1,9 +1,8 @@
 import * as multer from 'multer';
 import Archive from '../models/Archive.model';
 import crypto from '../utils/Crypto';
-import * as fs from 'fs';
-import * as path from 'path';
 import Config from '../config';
+import { fs, path } from '../utils/Tool';
 
 const Upload = multer({ dest: Config.uploadPath });
 export default Upload;
