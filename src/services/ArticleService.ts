@@ -10,6 +10,7 @@ import ArticleContent from '../models/ArticleContent.model';
 
 import { hash } from '../utils/Crypto';
 import User from '../models/User.model';
+import Config from '../config';
 
 const markdown = markdownIt();
 
@@ -95,10 +96,11 @@ export const bgImgUrl = async (content: string) => {
                 reject(err);
             });
         })
-            .then(async (fileFd) => {
+            .then(async (filePath) => {
                 const file = await new Archive({
-                    fd: fileFd,
-                    type: 'image/jpeg',
+                    path: filePath,
+                    mimetype: 'image/jpeg',
+                    destination: Config.uploadPath,
                     filename: url,
                     size: 0,
                 }).save();
