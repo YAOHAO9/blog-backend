@@ -1,14 +1,38 @@
 import * as multer from 'multer';
-const upload = multer({ dest: 'uploads/' });
+import Archive from '../models/Archive.model';
+import crypto from '../utils/Crypto';
+import * as fs from 'fs';
+import * as path from 'path';
+import Config from '../config';
 
-export default upload;
+const Upload = multer({ dest: Config.uploadPath });
+export default Upload;
 
-export const saveUploadFile = (file: any): number => {
-    console.log(JSON.stringify(file, null, 2));
-    return 1;
+const readFileHash = (filePath) => {
+    return new Promise<string>((reslove) => {
+        const hash = crypto.createHash(Config.Crytpo.hash.algorithm);
+        const stream = fs.createReadStream(filePath);
+        stream.on('data', (chunk) => {
+            hash.update(chunk);
+        });
+        stream.on('end', () => {
+            reslove(hash.digest('hex'));
+        });
+    });
+};
+export const saveUploadFile = async (file: any, momentId?: number): Promise<Archive> => {
+    file.momentId = momentId;
+    const hash = await readFileHash(file.path);
+    file.filename = hash;
+    const newPath = path.join(file.destination, hash);
+    fs.renameSync(file.path, newPath);
+    file.path = newPath;
+    return new Archive(file).save();
 };
 
-export const saveUploadFiles = (files: any[]): number[] => {
-    console.log(JSON.stringify(files, null, 2));
-    return [];
+export const saveUploadFiles = (files: any[], momentId?: number): Promise<Archive[]> => {
+    const tasks = files.map((file) => {
+        return saveUploadFile(file, momentId);
+    });
+    return Promise.all(tasks);
 };

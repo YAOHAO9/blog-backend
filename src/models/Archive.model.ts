@@ -9,16 +9,28 @@ export default class Archive extends Model<Archive> {
   public momentId: number;
 
   @Column
-  public fd: string;
-
-  @Column(DataType.FLOAT)
-  public size: number;
+  public fieldname: string;
 
   @Column
-  public type: string;
+  public originalname: string;
+
+  @Column
+  public encoding: string;
+
+  @Column
+  public mimetype: string;
+
+  @Column
+  public destination: string;
 
   @Column
   public filename: string;
+
+  @Column
+  public path: string;
+
+  @Column(DataType.FLOAT)
+  public size: number;
 
   @CreatedAt
   public createdAt: Date;

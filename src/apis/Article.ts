@@ -8,10 +8,10 @@ import User from '../models/User.model';
 import Discussion from '../models/Discussion.model';
 
 import { bgImgUrl, getArticleAndSaveByUrl } from '../services/ArticleService';
-import upload, { saveUploadFile } from '../services/UploadService';
+import Upload, { saveUploadFile } from '../services/UploadService';
 
 const router = express.Router()
-    .post('/create', upload.single('icon'), errorWrapper(async (req: express.Request, res: express.Response) => {
+    .post('/create', Upload.single('icon'), errorWrapper(async (req: express.Request, res: express.Response) => {
         if (!req.body.title) {
             return res.status(403).send(new Result(new Error('标题不能为空')));
         }
@@ -27,7 +27,7 @@ const router = express.Router()
             userId: (await User.findOne({ where: { isAdmin: true } })).id,
             title: req.body.title,
             description: req.body.description,
-            icon: saveUploadFile(req.file),
+            icon: (await saveUploadFile(req.file)).id,
         }).save();
         await new ArticleContent({ content, articleId: article.id }).save();
         return res.json(new Result(article));

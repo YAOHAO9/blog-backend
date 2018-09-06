@@ -4,7 +4,7 @@ import { Sequelize } from 'sequelize-typescript';
 import * as bluebird from 'bluebird';
 import * as redis from 'redis';
 import { Result } from './interfaces/Respond';
-import config from './config';
+import Config from './config';
 import AccessRecord from './models/AccessRecord.model';
 import Archive from './models/Archive.model';
 import Article from './models/Article.model';
@@ -22,7 +22,7 @@ bluebird.promisifyAll(redis.Multi.prototype);
 const app = express();
 export default app;
 
-export const sequelize = new Sequelize(config.sequelize);
+export const sequelize = new Sequelize(Config.sequelize);
 
 export const redisClient = redis.createClient();
 redisClient.on('error', (e) => {

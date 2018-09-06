@@ -85,7 +85,7 @@ export const bgImgUrl = async (content: string) => {
     const tasks = urls.map((url) => {
         if (url.indexOf('http') < 0) { return null; }
         return new Promise<string>((resolve, reject) => {
-            const fileFd = path.join('.tmp', 'uploads', hash(url));
+            const fileFd = path.join('.tmp', hash(url));
             const writeStream = fs.createWriteStream(fileFd);
             superagent(url).pipe(writeStream);
             writeStream.on('finish', () => {

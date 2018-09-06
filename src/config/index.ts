@@ -1,5 +1,7 @@
 import { SequelizeOptions } from 'sequelize-typescript/lib/sequelize/types/SequelizeOptions';
+import * as path from 'path';
 
+export const uploadFolderName = 'UploadsOfBlogBackend';
 export interface ConfigInterface {
     sequelize: SequelizeOptions;
     Crytpo: {
@@ -12,9 +14,10 @@ export interface ConfigInterface {
             algorithm: string;
         },
     };
+    uploadPath: string;
 }
 
-const Config: ConfigInterface = {
+let Config: ConfigInterface = {
     sequelize: {
         database: 'mobileblog',
         dialect: 'postgres',
@@ -46,6 +49,7 @@ const Config: ConfigInterface = {
         },
 
     },
+    uploadPath: path.join(__dirname, '../../../' + uploadFolderName),
 };
-
-export default Object.assign(Config, {});
+Config = Object.assign(Config, {});
+export default Config;

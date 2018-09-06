@@ -7,11 +7,11 @@ export default class MomentApprove extends Model<MomentApprove> {
 
     @ForeignKey(() => Moment)
     @Column
-    public articleId: number;
+    public momentId: number;
 
     @ForeignKey(() => User)
     @Column
-    public authorId: number;
+    public userId: number;
 
     @CreatedAt
     public createdAt: Date;

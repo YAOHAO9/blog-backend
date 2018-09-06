@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { hash } from '../utils/Crypto';
 import Archive from '../models/Archive.model';
+import Config from '../config';
 
 const parseImgSrc = async (content: string, baseHttp: string = null) => {
     const $ = cheerio.load(content);
@@ -22,15 +23,11 @@ const parseImgSrc = async (content: string, baseHttp: string = null) => {
         }
         const task = new Promise<string>(async (resolve, reject) => {
             try {
-                const folderPath = path.join('.tmp', 'uploads');
-                if (fs.existsSync(folderPath)) {
-                    console.log('exist');
-                }
-                const fileFd = path.join('.tmp', 'uploads', hash(src));
-                const writeStream = fs.createWriteStream(fileFd);
+                const filePath = path.join(Config.uploadPath, hash(src));
+                const writeStream = fs.createWriteStream(filePath);
                 superagent(src).pipe(writeStream);
                 writeStream.on('finish', () => {
-                    resolve(fileFd);
+                    resolve(filePath);
                 });
                 writeStream.on('error', (e) => {
                     reject(e);
@@ -39,15 +36,19 @@ const parseImgSrc = async (content: string, baseHttp: string = null) => {
                 reject(e);
             }
         })
-            .then(async (fileFd) => {
-                const file = await new Archive({
-                    fd: fileFd,
-                    type: 'image/jpeg',
-                    filename: src,
-                    size: 0,
-                }).save();
-                $(img).attr('src', 'api/archive/' + file.id);
-                return file.id;
+            .then(async (filePath) => {
+                let archive = await Archive.findOne({ where: { path: filePath } });
+                if (!archive) {
+                    archive = await new Archive({
+                        path: filePath,
+                        mimetype: 'image/jpeg',
+                        destination: Config.uploadPath,
+                        filename: src,
+                        size: 0,
+                    }).save();
+                }
+                $(img).attr('src', 'api/archive/' + archive.id);
+                return archive.id;
             });
         tasks.push(task);
     }
