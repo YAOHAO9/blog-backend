@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 
-import Server from '../server';
+import app from '../server';
 import AccessRecord from '../models/AccessRecord.model';
 import { getClientIp } from '../services/RequestService';
 import { errorWrapper } from '../middlewares/server';
@@ -16,4 +16,4 @@ const router = Router()
         return res.json(accessRecord);
     }));
 
-Server.use('/api/access-record', router);
+app.use('/api/access-record', router);

@@ -1,9 +1,11 @@
 import { SequelizeOptions } from 'sequelize-typescript/lib/sequelize/types/SequelizeOptions';
 import { path } from '../utils/Tool';
+import { SocketIORedisOptions } from 'socket.io-redis';
 
 export const uploadFolderName = 'UploadsOfBlogBackend';
 export interface ConfigInterface {
     sequelize: SequelizeOptions;
+    redis: SocketIORedisOptions;
     Crytpo: {
         cipher: {
             algorithm: string;
@@ -37,6 +39,10 @@ let Config: ConfigInterface = {
         username: 'postgres',
         password: '',
         modelPaths: [__dirname + '/../models'],
+    },
+    redis: {
+        host: 'localhost',
+        port: 6337,
     },
     Crytpo: {
         cipher: {

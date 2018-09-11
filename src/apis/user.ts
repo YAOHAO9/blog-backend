@@ -1,6 +1,6 @@
 
 import { Request, Router, Response } from 'express';
-import Server from '../server';
+import app from '../server';
 import { Result } from '../interfaces/Respond';
 import { errorWrapper } from '../middlewares/server';
 
@@ -12,4 +12,4 @@ const router = Router()
     res.jsonp({ aaa: 111 });
   });
 
-Server.use('/api/user', router);
+app.use('/api/user', router);

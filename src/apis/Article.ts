@@ -1,6 +1,6 @@
 import parseImgSrc from '../services/ParseImgSrc';
 import { Request, Response, Router } from 'express';
-import Server from '../server';
+import app from '../server';
 import { Result } from '../interfaces/Respond';
 import Article, { ArticleMethod } from '../models/Article.model';
 import ArticleContent from '../models/ArticleContent.model';
@@ -77,4 +77,4 @@ const router = Router()
         return res.json(new Result(article));
     }));
 
-Server.use('/api/article', router);
+app.use('/api/article', router);

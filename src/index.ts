@@ -1,11 +1,15 @@
 
 import * as initializeCustomeApi from 'require-all';
-import app, { initializeSequelize } from './server';
+import app, { initializeSequelize, server } from './server';
 import initializeRestfulApi from './restful';
 import { initializeMiddlewares } from './middlewares';
 import { errorHandler, notFoundHandler } from './middlewares/server';
+import { initializeSocketIO } from './sockets';
 
 const start = async () => {
+  // socket.io
+  initializeSocketIO();
+
   // Start postgres
   await initializeSequelize();
 
@@ -22,9 +26,8 @@ const start = async () => {
 
   // config port
   const port = process.env.PORT || 3000;
-  app.listen(port, () => {
-    console.log('Listening on: ' + port);
-  });
+  server.listen(port);
+  console.log(`Server listen at port: ${port}`);
 };
 
 start()

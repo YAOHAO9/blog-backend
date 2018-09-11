@@ -1,6 +1,6 @@
 
 import { Request, Router, Response } from 'express';
-import Server from '../server';
+import app from '../server';
 import { Result } from '../interfaces/Respond';
 import { errorWrapper } from '../middlewares/server';
 import Archive from '../models/Archive.model';
@@ -18,4 +18,4 @@ const router = Router()
         res.jsonp({ aaa: 111 });
     });
 
-Server.use('/api/archive', router);
+app.use('/api/archive', router);

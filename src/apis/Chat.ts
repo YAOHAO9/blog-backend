@@ -1,10 +1,11 @@
 
 import { Request, Router } from 'express';
-import Server, { io } from '../server';
+import app from '../server';
 import { Result } from '../interfaces/Respond';
 import Upload, { saveUploadFile } from '../services/UploadService';
 import Chat from '../models/Chat.model';
 import { errorWrapper } from '../middlewares/server';
+import { io } from '../sockets';
 
 const router = Router()
     .post('/sendImage', Upload.single('image'), errorWrapper(async (req: Request, res) => {
@@ -20,10 +21,11 @@ const router = Router()
         }
         res.json(new Result(chat));
         if (chat.session === '0-0') {
-            return io.sockets.broadcast('0-0', 'update', chat.toJSON());
+            io.in('0-0').emit('update', chat.toJSON());
+            return;
         }
         if (chat.receiver && chat.receiver.socketId) {
-            io.sockets.broadcast(chat.receiver.socketId, 'update', chat.toJSON());
+            io.in(chat.receiver.socketId).emit('update', chat.toJSON());
         }
     }))
     .get('/find', errorWrapper(async (req: Request, res) => {
@@ -52,4 +54,4 @@ const router = Router()
         res.json(new Result(chats));
     }));
 
-Server.use('/api/chat', router);
+app.use('/api/chat', router);

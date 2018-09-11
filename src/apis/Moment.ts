@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 
-import Server from '../server';
+import app from '../server';
 import Upload, { saveUploadFiles } from '../services/UploadService';
 import { getClientIp } from '../services/RequestService';
 import Moment, { MomentMethod } from '../models/Moment.model';
@@ -70,4 +70,4 @@ const router = Router()
         res.json(new Result(momentApprove));
     }));
 
-Server.use('/api/moment', router);
+app.use('/api/moment', router);

@@ -14,7 +14,6 @@ import Moment from './models/Moment.model';
 import MomentApprove from './models/MomentApprove.model';
 import MomentDisapprove from './models/MomentDisapprove.model';
 import User from './models/User.model';
-import * as SocketIO from 'socket.io';
 import { http } from './utils/Tool';
 
 bluebird.promisifyAll(redis.RedisClient.prototype);
@@ -22,6 +21,8 @@ bluebird.promisifyAll(redis.Multi.prototype);
 
 const app = express();
 export default app;
+
+export const server = http.createServer(app);
 
 const Op = Sequelize.Op;
 const operatorsAliases = {
@@ -82,5 +83,3 @@ export const initializeSequelize = async () => {
   await MomentDisapprove.sync({ alter: true });
   await User.sync({ alter: true });
 };
-
-export const io = SocketIO(http.createServer(app));
