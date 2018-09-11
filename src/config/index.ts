@@ -38,11 +38,11 @@ let Config: ConfigInterface = {
         },
         username: 'postgres',
         password: '',
-        modelPaths: [__dirname + '/../models'],
+        modelPaths: [__dirname + '/../models/*.model.ts'],
     },
     redis: {
         host: 'localhost',
-        port: 6337,
+        port: 6379,
     },
     Crytpo: {
         cipher: {
