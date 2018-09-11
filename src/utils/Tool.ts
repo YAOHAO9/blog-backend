@@ -49,3 +49,23 @@ export const getUserCityInfo = (req) => {
         });
     });
 };
+
+export const parseQuery = ((query): { limit: number, offset: number, order: any } => {
+    const { offset, count, sort } = query;
+    const order = [];
+    const columnNames = [];
+    if (sort) {
+        const sortColumns = sort.split(',');
+        sortColumns.forEach((sortColumn) => {
+            if (sortColumn.indexOf('-') === 0) {
+                const actualName = sortColumn.substring(1);
+                order.push([actualName, 'DESC']);
+                columnNames.push(actualName);
+            } else {
+                columnNames.push(sortColumn);
+                order.push([sortColumn, 'ASC']);
+            }
+        });
+    }
+    return { offset, limit: count, order: order.length ? order : undefined };
+});

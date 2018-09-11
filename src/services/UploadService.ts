@@ -3,8 +3,13 @@ import Archive from '../models/Archive.model';
 import crypto from '../utils/Crypto';
 import Config from '../config';
 import { fs, path } from '../utils/Tool';
+import { RequestHandler } from 'express';
 
-const Upload = multer({ dest: Config.uploadPath });
+export interface UploadInterface {
+    array: (names: string, num?: number) => RequestHandler;
+    single: (name: string) => RequestHandler;
+}
+const Upload: UploadInterface = multer({ dest: Config.uploadPath });
 export default Upload;
 
 const readFileHash = (filePath) => {

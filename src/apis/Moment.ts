@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 
-import Server, { errorWrapper } from '../server';
+import Server from '../server';
 import Upload, { saveUploadFiles } from '../services/UploadService';
 import { getClientIp } from '../services/RequestService';
 import Moment, { MomentMethod } from '../models/Moment.model';
@@ -8,6 +8,8 @@ import { Result } from '../interfaces/Respond';
 import isAdmin from '../middlewares/Admin';
 import MomentApprove from '../models/MomentApprove.model';
 import Archive from '../models/Archive.model';
+import { errorWrapper } from '../middlewares/server';
+import { parseQuery } from '../utils/Tool';
 
 const router = Router()
     .post('/create', Upload.array('images', 9), errorWrapper(async (req: Request, res: Response) => {
@@ -20,17 +22,22 @@ const router = Router()
         await saveUploadFiles(req.files, moment.id);
         res.json(new Result(moment));
     }))
-    .get('/', errorWrapper(async (_: Request, res: Response) => {
+    .get('/', errorWrapper(async (req: Request, res: Response) => {
+        const { limit, offset, order } = parseQuery(req.query);
         const moments: Moment[] = await Moment.findAll({
             include: [
                 Archive,
-            ], limit: 10,
+            ],
+            offset,
+            limit,
+            order,
         });
         const momentJsons = await Promise.all(moments.map(async (moment) => {
             const momentJson = moment.toJSON();
             momentJson.user = await (moment as MomentMethod).getUser();
             momentJson.disapproves = await (moment as MomentMethod).getDisapproves();
             momentJson.approves = await (moment as MomentMethod).getApproves();
+            momentJson.images = momentJson.images.map((image) => image.id);
             return momentJson;
         }));
         return res.json(new Result(momentJsons));

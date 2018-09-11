@@ -1,8 +1,9 @@
 
 import * as initializeCustomeApi from 'require-all';
-import app, { errorHandler, notFoundHandler, initializeSequelize } from './server';
+import app, { initializeSequelize } from './server';
 import initializeRestfulApi from './restful';
 import { initializeMiddlewares } from './middlewares';
+import { errorHandler, notFoundHandler } from './middlewares/server';
 
 const start = async () => {
   // Start postgres

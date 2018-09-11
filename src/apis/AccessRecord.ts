@@ -1,8 +1,10 @@
 import { Request, Response, Router } from 'express';
 
-import Server, { errorWrapper } from '../server';
+import Server from '../server';
 import AccessRecord from '../models/AccessRecord.model';
 import { getClientIp } from '../services/RequestService';
+import { errorWrapper } from '../middlewares/server';
+
 const router = Router()
     .post('create', errorWrapper(async (req: Request, res: Response) => {
         const date = new Date(new Date().toDateString());

@@ -1,9 +1,9 @@
 
 import { Request, Response, NextFunction } from 'express';
-import { errorWrapper } from '../server';
 import User from '../models/User.model';
 import { encrypt, decrypt } from '../utils/Crypto';
 import { getRandomName } from '../config/famousNames';
+import { errorWrapper } from './server';
 
 const loadSession = errorWrapper(async (req: Request, res: Response, next: NextFunction) => {
     let user: User;

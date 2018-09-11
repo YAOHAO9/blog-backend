@@ -1,6 +1,6 @@
 import parseImgSrc from '../services/ParseImgSrc';
 import { Request, Response, Router } from 'express';
-import Server, { errorWrapper } from '../server';
+import Server from '../server';
 import { Result } from '../interfaces/Respond';
 import Article, { ArticleMethod } from '../models/Article.model';
 import ArticleContent from '../models/ArticleContent.model';
@@ -9,6 +9,8 @@ import Discussion from '../models/Discussion.model';
 
 import { bgImgUrl, getArticleAndSaveByUrl } from '../services/ArticleService';
 import Upload, { saveUploadFile } from '../services/UploadService';
+import { errorWrapper } from '../middlewares/server';
+import { parseQuery } from '../utils/Tool';
 
 const router = Router()
     .post('/create', Upload.single('icon'), errorWrapper(async (req: Request, res: Response) => {
@@ -32,12 +34,15 @@ const router = Router()
         await new ArticleContent({ content, articleId: article.id }).save();
         return res.json(new Result(article));
     }))
-    .get('/', errorWrapper(async (_: Request, res: Response) => {
+    .get('/', errorWrapper(async (req: Request, res: Response) => {
+        const { limit, offset, order } = parseQuery(req.query);
         const articles: Article[] = await Article.findAll({
             include: [
-                ArticleContent,
                 Discussion,
-            ], limit: 10,
+            ],
+            offset,
+            limit,
+            order,
         });
         const articleJsons = await Promise.all(articles.map(async (article) => {
             const articleJson = article.toJSON();
@@ -69,11 +74,7 @@ const router = Router()
                 ArticleContent,
             ], limit: 10,
         });
-        const articleJson = article.toJSON();
-        articleJson.user = await (article as ArticleMethod).getUser();
-        articleJson.disapproves = await (article as ArticleMethod).getDisapproves();
-        articleJson.approves = await (article as ArticleMethod).getApproves();
-        return res.json(new Result(articleJson));
+        return res.json(new Result(article));
     }));
 
 Server.use('/api/article', router);
