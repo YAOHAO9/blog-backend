@@ -1,11 +1,11 @@
 import { SequelizeOptions } from 'sequelize-typescript/lib/sequelize/types/SequelizeOptions';
 import { path } from '../utils/Tool';
-import { SocketIORedisOptions } from 'socket.io-redis';
+import { ClientOpts } from 'redis';
 
 export const uploadFolderName = 'UploadsOfBlogBackend';
 export interface ConfigInterface {
     sequelize: SequelizeOptions;
-    redis: SocketIORedisOptions;
+    redis: ClientOpts;
     Crytpo: {
         cipher: {
             algorithm: string;
