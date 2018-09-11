@@ -1,7 +1,7 @@
 
 import * as SocketIO from 'socket.io';
 import * as socketRedis from 'socket.io-redis';
-import { server } from '../server';
+import { server } from '../services/AppService';
 
 export const io = SocketIO(server);
 export const initializeSocketIO = () => {

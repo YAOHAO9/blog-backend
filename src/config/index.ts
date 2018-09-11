@@ -42,7 +42,7 @@ let Config: ConfigInterface = {
     },
     redis: {
         host: 'localhost',
-        port: 6337,
+        port: 6379,
     },
     Crytpo: {
         cipher: {

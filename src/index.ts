@@ -1,10 +1,11 @@
 
 import * as initializeCustomeApi from 'require-all';
-import app, { initializeSequelize, server } from './server';
-import initializeRestfulApi from './restful';
+import app, { server } from './services/AppService';
+import initializeRestfulApi from './services/RestfulService';
 import { initializeMiddlewares } from './middlewares';
 import { errorHandler, notFoundHandler } from './middlewares/server';
 import { initializeSocketIO } from './sockets';
+import { initializeSequelize } from './services/SequelizeService';
 
 const start = async () => {
   // socket.io

@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 
-import app from '../server';
+import app from '../services/AppService';
 import Upload, { saveUploadFiles } from '../services/UploadService';
 import { getClientIp } from '../services/RequestService';
 import Moment, { MomentMethod } from '../models/Moment.model';

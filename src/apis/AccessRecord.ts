@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 
-import app from '../server';
+import app from '../services/AppService';
 import AccessRecord from '../models/AccessRecord.model';
 import { getClientIp } from '../services/RequestService';
 import { errorWrapper } from '../middlewares/server';

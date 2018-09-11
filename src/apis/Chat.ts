@@ -1,6 +1,6 @@
 
 import { Request, Router } from 'express';
-import app from '../server';
+import app from '../services/AppService';
 import { Result } from '../interfaces/Respond';
 import Upload, { saveUploadFile } from '../services/UploadService';
 import Chat from '../models/Chat.model';

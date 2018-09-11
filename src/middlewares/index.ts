@@ -1,4 +1,4 @@
-import app from '../server';
+import app from '../services/AppService';
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import loadSession from './session';

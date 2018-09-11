@@ -1,14 +1,15 @@
 
 import * as finale from 'finale-rest';
 
-import app, { sequelize } from './server';
-import User from './models/User.model';
-import AccessRecord from './models/AccessRecord.model';
-import Archive from './models/Archive.model';
-import Article from './models/Article.model';
-import Chat from './models/Chat.model';
-import Discussion from './models/Discussion.model';
-import Moment from './models/Moment.model';
+import app from './AppService';
+import User from '../models/User.model';
+import AccessRecord from '../models/AccessRecord.model';
+import Archive from '../models/Archive.model';
+import Article from '../models/Article.model';
+import Chat from '../models/Chat.model';
+import Discussion from '../models/Discussion.model';
+import Moment from '../models/Moment.model';
+import { sequelize } from './SequelizeService';
 
 const initializeRestfulApi = () => {
     finale.initialize({

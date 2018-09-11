@@ -1,6 +1,6 @@
 
 import { Request, Router, Response } from 'express';
-import app from '../server';
+import app from '../services/AppService';
 import { Result } from '../interfaces/Respond';
 import { errorWrapper } from '../middlewares/server';
 

@@ -1,6 +1,6 @@
 import parseImgSrc from '../services/ParseImgSrc';
 import { Request, Response, Router } from 'express';
-import app from '../server';
+import app from '../services/AppService';
 import { Result } from '../interfaces/Respond';
 import Article, { ArticleMethod } from '../models/Article.model';
 import ArticleContent from '../models/ArticleContent.model';
