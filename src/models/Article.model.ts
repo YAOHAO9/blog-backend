@@ -1,17 +1,10 @@
 import {
-  Table, Column, Model, CreatedAt, UpdatedAt, DataType, BelongsTo, HasOne, ForeignKey, BelongsToMany, HasMany,
+  Table, Column, Model, CreatedAt, UpdatedAt, DataType, BelongsTo, HasOne, ForeignKey, HasMany, Default,
 } from 'sequelize-typescript';
 import ArticleContent from './ArticleContent.model';
 import User from './User.model';
-import ArticleApprove from './ArticleApprove.model';
-import ArticleDisapprove from './ArticleDisapprove.model';
 import Discussion from './Discussion.model';
 
-export interface ArticleMethod extends Article {
-  getUser: () => User;
-  getDisapproves: () => User[];
-  getApproves: () => User[];
-}
 @Table
 export default class Article extends Model<Article>   {
 
@@ -40,11 +33,13 @@ export default class Article extends Model<Article>   {
   @HasMany(() => Discussion)
   public discussions: Discussion[];
 
-  @BelongsToMany(() => User, () => ArticleApprove)
-  public approves: User[];
+  @Default([])
+  @Column(DataType.ARRAY(DataType.INTEGER))
+  public approves: number[];
 
-  @BelongsToMany(() => User, () => ArticleDisapprove)
-  public disapproves: User[];
+  @Default([])
+  @Column(DataType.ARRAY(DataType.INTEGER))
+  public disapproves: number[];
 
   @CreatedAt
   public createdAt: Date;

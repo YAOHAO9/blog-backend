@@ -10,6 +10,7 @@ import Archive from '../models/Archive.model';
 import { errorWrapper } from '../middlewares/server';
 import { parseQuery } from '../utils/Tool';
 import User from '../models/User.model';
+import Discussion from '../models/Discussion.model';
 
 const router = Router()
     .post('/create', Upload.array('images', 9), errorWrapper(async (req: Request, res: Response) => {
@@ -30,6 +31,7 @@ const router = Router()
             include: [
                 Archive,
                 User,
+                Discussion,
             ],
             offset,
             limit,

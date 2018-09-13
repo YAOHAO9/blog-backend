@@ -2,7 +2,7 @@ import parseImgSrc from '../services/ParseImgSrc';
 import { Request, Response, Router } from 'express';
 import app from '../services/AppService';
 import { Result } from '../interfaces/Respond';
-import Article, { ArticleMethod } from '../models/Article.model';
+import Article from '../models/Article.model';
 import ArticleContent from '../models/ArticleContent.model';
 import User from '../models/User.model';
 import Discussion from '../models/Discussion.model';
@@ -39,19 +39,13 @@ const router = Router()
         const articles: Article[] = await Article.findAll({
             include: [
                 Discussion,
+                User,
             ],
             offset,
             limit,
             order,
         });
-        const articleJsons = await Promise.all(articles.map(async (article) => {
-            const articleJson = article.toJSON();
-            articleJson.user = await (article as ArticleMethod).getUser();
-            articleJson.disapproves = await (article as ArticleMethod).getDisapproves();
-            articleJson.approves = await (article as ArticleMethod).getApproves();
-            return articleJson;
-        }));
-        return res.json(new Result(articleJsons));
+        return res.json(new Result(articles));
     }))
     .get('/segmentFaultNote', errorWrapper(async (req: Request, res: Response) => {
         const articleType = 'segmentFaultNote';
