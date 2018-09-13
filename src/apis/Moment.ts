@@ -3,13 +3,13 @@ import { Request, Response, Router } from 'express';
 import app from '../services/AppService';
 import Upload, { saveUploadFiles } from '../services/UploadService';
 import { getClientIp } from '../services/RequestService';
-import Moment, { MomentMethod } from '../models/Moment.model';
+import Moment from '../models/Moment.model';
 import { Result } from '../interfaces/Respond';
 import isAdmin from '../middlewares/Admin';
-import MomentApprove from '../models/MomentApprove.model';
 import Archive from '../models/Archive.model';
 import { errorWrapper } from '../middlewares/server';
 import { parseQuery } from '../utils/Tool';
+import User from '../models/User.model';
 
 const router = Router()
     .post('/create', Upload.array('images', 9), errorWrapper(async (req: Request, res: Response) => {
@@ -17,6 +17,8 @@ const router = Router()
         const moment = await new Moment({
             userId: req.session.user.id,
             content: '<p>' + req.body.content.replace(/\r\n/g, '<br\/>').replace(/\n/g, '<br\/>') + '<\/p>',
+            disapproves: [],
+            approves: [],
             ip,
         }).save();
         await saveUploadFiles(req.files, moment.id);
@@ -27,6 +29,7 @@ const router = Router()
         const moments: Moment[] = await Moment.findAll({
             include: [
                 Archive,
+                User,
             ],
             offset,
             limit,
@@ -34,9 +37,6 @@ const router = Router()
         });
         const momentJsons = await Promise.all(moments.map(async (moment) => {
             const momentJson = moment.toJSON();
-            momentJson.user = await (moment as MomentMethod).getUser();
-            momentJson.disapproves = await (moment as MomentMethod).getDisapproves();
-            momentJson.approves = await (moment as MomentMethod).getApproves();
             momentJson.images = momentJson.images.map((image) => image.id);
             return momentJson;
         }));
@@ -59,15 +59,57 @@ const router = Router()
         const moment = await Moment.update({ id }, { where: { content } });
         return res.json(new Result(moment));
     }))
-    .post('/approve', errorWrapper(async (req: Request, res: Response) => {
-        const { momentId, userId } = req.body;
-        const momentApprove = await new MomentApprove({ momentId, userId }).save();
-        res.json(new Result(momentApprove));
+    .put('/approve/:momentId', errorWrapper(async (req: Request, res: Response) => {
+        const user = req.session.user;
+        const moment = await Moment.findById(req.param('momentId'));
+        if (!moment.approves) {
+            moment.approves = [];
+        }
+        if (!moment.disapproves) {
+            moment.disapproves = [];
+        }
+        const foundUser = moment.approves.find((approve) => {
+            return approve === user.id;
+        });
+        if (foundUser) {
+            moment.approves.splice(moment.approves.indexOf(user.id), 1);
+        } else {
+            moment.approves.push(user.id);
+        }
+        if (moment.disapproves.indexOf(user.id) >= 0) {
+            moment.disapproves.splice(moment.disapproves.indexOf(user.id), 1);
+        }
+        // This is required, otherwise the data would not be stored.
+        moment.approves = [...moment.approves];
+        moment.disapproves = [...moment.disapproves];
+        await moment.save();
+        res.json(new Result(moment));
     }))
-    .post('/disapprove', errorWrapper(async (req: Request, res: Response) => {
-        const { momentId, userId } = req.body;
-        const momentApprove = await MomentApprove.destroy({ where: { momentId, userId } });
-        res.json(new Result(momentApprove));
+    .put('/disapprove/:momentId', errorWrapper(async (req: Request, res: Response) => {
+        const user = req.session.user;
+        const moment = await Moment.findById(req.param('momentId'));
+        if (!moment.approves) {
+            moment.approves = [];
+        }
+        if (!moment.disapproves) {
+            moment.disapproves = [];
+        }
+        const foundUser = moment.disapproves.find((approve) => {
+            return approve === user.id;
+        });
+        if (foundUser) {
+            moment.disapproves.splice(moment.disapproves.indexOf(user.id), 1);
+        } else {
+            moment.disapproves.push(user.id);
+        }
+        if (moment.approves.indexOf(user.id) >= 0) {
+            moment.approves.splice(moment.approves.indexOf(user.id), 1);
+        }
+        // This is required, otherwise the data would not be stored.
+        moment.approves = [...moment.approves];
+        moment.disapproves = [...moment.disapproves];
+        await moment.save();
+        res.json(new Result(moment));
     }));
 
 app.use('/api/moment', router);

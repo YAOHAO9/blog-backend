@@ -8,7 +8,7 @@ export default class AccessRecord extends Model<AccessRecord> {
   @Column
   public userId: number;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, 'userId')
   public user: User;
 
   @Column

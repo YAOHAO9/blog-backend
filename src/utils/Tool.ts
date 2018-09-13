@@ -51,7 +51,7 @@ export const getUserCityInfo = (req) => {
 };
 
 export const parseQuery = ((query): { limit: number, offset: number, order: any } => {
-    const { offset, count, sort } = query;
+    const { offset = 0, count = 10, sort } = query;
     const order = [];
     const columnNames = [];
     if (sort) {
@@ -69,3 +69,25 @@ export const parseQuery = ((query): { limit: number, offset: number, order: any 
     }
     return { offset, limit: count, order: order.length ? order : undefined };
 });
+
+export const associateInstances = (instances: any, ...keys: string[]) => {
+    let isArray = true;
+    if (!(instances instanceof Array)) {
+        instances = [instances];
+        isArray = false;
+    }
+    const tasks = instances.map(async (instance) => {
+        const newInstance = instance.toJSON();
+        await Promise.all(
+            keys.map(async (key) => {
+                const lowerCaseKey = key.toLowerCase();
+                const sander = await instance[`get${key}`]();
+                return newInstance[lowerCaseKey] = sander;
+            }));
+        return newInstance;
+    });
+    if (isArray) {
+        return Promise.all(tasks);
+    }
+    return tasks[0];
+};

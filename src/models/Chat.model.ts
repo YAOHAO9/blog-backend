@@ -11,14 +11,14 @@ export default class Chat extends Model<Chat> {
   @Column
   public senderId: number;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, { foreignKey: 'senderId', targetKey: 'id' })
   public sender: User;
 
   @ForeignKey(() => User)
   @Column
   public receiverId: number;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, { foreignKey: 'receiverId', targetKey: 'id' })
   public receiver: User;
 
   @Column

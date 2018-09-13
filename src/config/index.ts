@@ -17,6 +17,17 @@ export interface ConfigInterface {
         },
     };
     uploadPath: string;
+    smtpSettings: {
+        auth: {
+            pass: string,
+            user: string,
+        },
+        sendmailFrom: string,
+        secureConnection: boolean, // use SSL
+        port: number, // port
+        service: string,
+
+    };
 }
 
 let Config: ConfigInterface = {
@@ -56,6 +67,16 @@ let Config: ConfigInterface = {
 
     },
     uploadPath: path.join(__dirname, '../../../' + uploadFolderName),
+    smtpSettings: {
+        auth: {
+            pass: 'rltpkgykqlqxbfaf',
+            user: '986403268@qq.com',
+        },
+        sendmailFrom: '<986403268@qq.com>',
+        secureConnection: true, // use SSL
+        port: 465, // port
+        service: 'qq',
+    },
 };
 Config = Object.assign(Config, {});
 export default Config;

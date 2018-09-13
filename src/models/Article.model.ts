@@ -19,7 +19,7 @@ export default class Article extends Model<Article>   {
   @Column
   public userId: number;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, 'userId')
   public user: User;
 
   @Column(DataType.INTEGER)

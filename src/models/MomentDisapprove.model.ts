@@ -7,11 +7,11 @@ export default class MomentDisapprove extends Model<MomentDisapprove> {
 
     @ForeignKey(() => Moment)
     @Column
-    public articleId: number;
+    public momentId: number;
 
     @ForeignKey(() => User)
     @Column
-    public authorId: number;
+    public userId: number;
 
     @CreatedAt
     public createdAt: Date;

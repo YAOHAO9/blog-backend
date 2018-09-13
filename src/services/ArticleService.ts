@@ -103,7 +103,7 @@ export const bgImgUrl = async (content: string) => {
                     filename: url,
                     size: 0,
                 }).save();
-                content = content.replace(url, 'api/file/find/' + file.id);
+                content = content.replace(url, 'api/archive/' + file.id);
             });
     });
     await Promise.all(tasks);

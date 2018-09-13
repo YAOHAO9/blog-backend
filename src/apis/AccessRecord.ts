@@ -6,7 +6,7 @@ import { getClientIp } from '../services/RequestService';
 import { errorWrapper } from '../middlewares/server';
 
 const router = Router()
-    .post('create', errorWrapper(async (req: Request, res: Response) => {
+    .post('/create', errorWrapper(async (req: Request, res: Response) => {
         const date = new Date(new Date().toDateString());
         if (req.session.user.isAdmin) {
             return res.json();
@@ -16,4 +16,4 @@ const router = Router()
         return res.json(accessRecord);
     }));
 
-app.use('/api/access-record', router);
+app.use('/api/accessrecord', router);

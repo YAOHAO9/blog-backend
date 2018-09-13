@@ -19,7 +19,7 @@ const initializeRestfulApi = () => {
     });
     finale.resource({
         model: AccessRecord,
-        endpoints: ['/access-record', '/access-record/:id'],
+        endpoints: ['/accessrecord', '/accessrecord/:id'],
     });
     finale.resource({
         model: Archive,
