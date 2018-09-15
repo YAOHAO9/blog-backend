@@ -33,11 +33,16 @@ const router = Router()
         const chats = Chat.find({ offset, limit: count || 3, order: sort, group: 'session' });
         res.json(new Result(chats));
     }))
+    .get('/find', errorWrapper(async (req: Request, res) => {
+        const { offset, count, sort } = req.query;
+        const chats = Chat.find({ offset, limit: count || 3, order: sort, group: 'session' });
+        res.json(new Result(chats));
+    }))
     .get('/read', errorWrapper(async (req: Request, res) => {
-        const [, chats] = await Chat.update({ read: true }, { where: { chatId: req.query.chatId } });
+        const [, chats] = await Chat.update({ read: true }, { where: { chatId: req.query.chatId }, returning: true });
         res.json(chats && chats.length === 1 && new Result(chats[0]));
     }))
-    .get('/getUnreadNum', errorWrapper(async (req: Request, res) => {
+    .put('/getUnreadNum', errorWrapper(async (req: Request, res) => {
         const chats = Chat.find({
             where: {
                 read: false, receiver: req.session.user.id, sender: req.body.sender,

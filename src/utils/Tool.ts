@@ -50,7 +50,7 @@ export const getUserCityInfo = (req) => {
     });
 };
 
-export const parseQuery = ((query): { limit: number, offset: number, order: any } => {
+export const parseQuery = ((query): { offset: number, limit: number, order: any } => {
     const { offset = 0, count = 10, sort } = query;
     const order = [];
     const columnNames = [];

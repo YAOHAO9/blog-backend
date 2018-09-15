@@ -9,3 +9,5 @@ test.js
 test.ts
 
 .tmp
+
+.DS_Store

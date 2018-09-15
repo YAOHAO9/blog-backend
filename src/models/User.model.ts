@@ -1,10 +1,11 @@
-import { Table, Column, Model, CreatedAt, UpdatedAt, IsEmail } from 'sequelize-typescript';
+import { Table, Column, Model, CreatedAt, UpdatedAt, IsEmail, Default } from 'sequelize-typescript';
 
 @Table
 export default class User extends Model<User> {
   @Column
   public name: string;
 
+  @Default(0)
   @Column
   public loginTimes: number;
 

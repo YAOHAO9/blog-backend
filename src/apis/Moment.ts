@@ -58,7 +58,7 @@ const router = Router()
         if (!content) {
             return res.status(403).json(new Error('请输入修改过的内容'));
         }
-        const moment = await Moment.update({ id }, { where: { content } });
+        const moment = await Moment.update({ id }, { where: { content }, returning: true });
         return res.json(new Result(moment));
     }))
     .put('/approve/:momentId', errorWrapper(async (req: Request, res: Response) => {

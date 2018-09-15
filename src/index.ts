@@ -1,6 +1,6 @@
 
 import * as initializeCustomeApi from 'require-all';
-import app, { server } from './services/AppService';
+import app, { server, express } from './services/AppService';
 import initializeRestfulApi from './services/RestfulService';
 import { initializeMiddlewares } from './middlewares';
 import { errorHandler, notFoundHandler } from './middlewares/server';
@@ -18,6 +18,7 @@ const start = async () => {
   initializeMiddlewares();
 
   // api
+  app.use(express.static('.tmp/public'));
   initializeCustomeApi(__dirname + '/apis');
   initializeRestfulApi();
 

@@ -1,4 +1,6 @@
-import { Table, Column, Model, CreatedAt, UpdatedAt, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import {
+  Table, Column, Model, CreatedAt, UpdatedAt, DataType, ForeignKey, BelongsTo, Default,
+} from 'sequelize-typescript';
 import User from './User.model';
 
 @Table
@@ -30,6 +32,7 @@ export default class Chat extends Model<Chat> {
   @Column
   public img: string;
 
+  @Default(false)
   @Column
   public read: boolean;
 

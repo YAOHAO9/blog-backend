@@ -1,6 +1,7 @@
 import * as express from 'express';
 import { http } from '../utils/Tool';
 
+export { express };
 const app = express();
 export default app;
 

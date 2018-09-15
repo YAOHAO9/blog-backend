@@ -14,6 +14,35 @@ export const io = SocketIO(server);
 export const initializeSocketIO = () => {
     io.adapter(socketRedis(Config.redis));
     io.on('connection', (socket) => {
+        socket.on('room', asyncError(async (roomId) => {
+            socket.join(roomId);
+        }));
+        socket.on('whoami', asyncError(async (userId) => {
+            const user = await User.findById(userId);
+            user.loginTimes++;
+            user.socketId = socket.id;
+            await user.save();
+            socket.emit('whoami', user.toJSON());
+            // notice admin
+            const admin = await User.findOne({ where: { isAdmin: true, email: { $ne: null } } });
+            if (!admin) {
+                return;
+            }
+            const mailOptions = {
+                from: Config.smtpSettings.sendmailFrom, // sender address
+                to: admin.email, // list of receivers
+                subject: 'YaoHao\'s Mibile Blog',
+                html: '',
+            };
+            mailOptions.html = `${user.name}，第${user.loginTimes}次上线!`;
+            // send mail with defined transport object
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: ' + info.response);
+            });
+        }));
         socket.join('0-0');
         /*listen*/
         socket.on('who', asyncError(async (id) => {
