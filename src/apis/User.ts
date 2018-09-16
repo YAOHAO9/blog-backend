@@ -18,7 +18,7 @@ const router = Router()
         res.json(new Result(users));
     }))
     .post('/update/:id', Upload.single('avator'), async (req: Request, res: Response) => {
-        const archive = await saveUploadFile(req.file);
+        const archive = req.file && await saveUploadFile(req.file);
         const [, users] = await User.update({ name: req.body.name, avator: archive && archive.id },
             { where: { id: req.param('id') }, returning: true });
         res.json(new Result(users[0]));

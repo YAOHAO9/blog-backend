@@ -9,13 +9,6 @@ import * as nodemailer from 'nodemailer';
 import { associateInstances } from '../utils/Tool';
 const transporter = nodemailer.createTransport(Config.smtpSettings);
 
-const onDisconnect = (socket: SocketIO.Socket) => {
-    socket.on('disconnect', asyncError(async (/* reason */) => {
-        await User.update({ socketId: null },
-            { where: { socketId: socket.id }, returning: true });
-    }));
-};
-
 const onJoinIn = (socket: SocketIO.Socket) => {
     socket.on('joinIn', asyncError(async (roomId) => {
         socket.join(roomId);
@@ -28,7 +21,13 @@ const onWhoami = (socket: SocketIO.Socket) => {
         user.loginTimes++;
         user.socketId = socket.id;
         await user.save();
-        socket.emit('whoami', user.toJSON());
+
+        if (process.env.NODE_ENV !== 'production') {
+            return;
+        }
+        if (user.isAdmin) {
+            return;
+        }
         // notice admin
         const admin = await User.findOne({ where: { isAdmin: true, email: { $ne: null } } });
         if (!admin) {
@@ -53,29 +52,37 @@ const onWhoami = (socket: SocketIO.Socket) => {
 
 const onSubmit = (socket: SocketIO.Socket) => {
     socket.on('submit', asyncError(async (chat) => {
-        socket.join(chat.session);
-
         const chatInstance = await new Chat(chat).save();
         const chatInstanceJSON = await associateInstances(chatInstance, 'Sender', 'Receiver');
         if (chatInstanceJSON.session === '0-0') {
             io.in('0-0').emit('update', chatInstanceJSON);
         } else {
             if (chatInstanceJSON.receiver.socketId) {
-                io.sockets.connected[chatInstanceJSON.receiver.socketId].join(chat.session);
+                io.in(chatInstanceJSON.receiver.socketId).emit('update', chatInstanceJSON);
             }
-            io.in(chat.session).emit('update', chatInstanceJSON);
+            socket.emit('update', chatInstanceJSON);
         }
     }));
 };
+
+const onDisconnect = (socket: SocketIO.Socket) => {
+    // tslint:disable-next-line:only-arrow-functions
+    socket.on('disconnect', async (/* reason */) => {
+        await User.update({ socketId: null },
+            { where: { socketId: socket.id }, returning: true });
+
+    });
+};
+
 export const io = SocketIO(server);
 
 export const initializeSocketIO = () => {
     io.adapter(socketRedis(Config.redis));
-    io.on('connection', (socket) => {
+    io.on('connection', asyncError(async (socket) => {
         socket.join('0-0');
-        onDisconnect(socket);
         onJoinIn(socket);
         onWhoami(socket);
         onSubmit(socket);
-    });
+        onDisconnect(socket);
+    }));
 };

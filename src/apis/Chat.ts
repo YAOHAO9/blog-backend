@@ -12,21 +12,30 @@ const router = Router()
     .post('/sendImage', Upload.single('image'), errorWrapper(async (req: Request, res) => {
         const file = await saveUploadFile(req.file);
         let chat;
-        if (file) {
-            const data = Object.assign({}, req.body, { type: 'image', img: file.id });
-            if (data.session === '0-0') {
-                delete data.receiver;
-            }
-            delete data.content;
-            chat = await new Chat(data).save();
+        const { session, receiverId } = req.body;
+        if (!file) {
+            return res.status(403).json(new Result(new Error('Please select an image.')));
         }
+        const data = {
+            type: 'image',
+            img: file.id,
+            senderId: req.session.user.id,
+            session,
+            receiverId: session === '0-0' ? undefined : receiverId,
+        };
+        chat = await new Chat(data).save();
         res.json(new Result(chat));
+        const chatJSON = await associateInstances(chat, 'Sender', 'Receiver');
         if (chat.session === '0-0') {
-            io.in('0-0').emit('update', chat.toJSON());
-            return;
-        }
-        if (chat.receiver && chat.receiver.socketId) {
-            io.in(chat.receiver.socketId).emit('update', chat.toJSON());
+            return io.in('0-0').emit('update', chatJSON);
+        } else {
+            if (chatJSON.sender.socketId) {
+                io.in(req.session.user.socketId).emit('update', chatJSON);
+            }
+            if (chatJSON.receiver && chatJSON.receiver.socketId) {
+                io.in(chatJSON.receiver.socketId).emit('update', chatJSON);
+            }
+            return null;
         }
     }))
     .get('/find', errorWrapper(async (req: Request, res) => {
