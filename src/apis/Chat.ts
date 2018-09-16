@@ -6,6 +6,7 @@ import Upload, { saveUploadFile } from '../services/UploadService';
 import Chat from '../models/Chat.model';
 import { errorWrapper } from '../middlewares/server';
 import { io } from '../sockets';
+import { parseQuery, associateInstances } from '../utils/Tool';
 
 const router = Router()
     .post('/sendImage', Upload.single('image'), errorWrapper(async (req: Request, res) => {
@@ -29,34 +30,25 @@ const router = Router()
         }
     }))
     .get('/find', errorWrapper(async (req: Request, res) => {
-        const { offset, count, sort } = req.query;
-        const chats = Chat.find({ offset, limit: count || 3, order: sort, group: 'session' });
-        res.json(new Result(chats));
+        const { offset, limit, order } = parseQuery(req.query);
+        if (!req.query.session) {
+            return res.status(403).json(new Result(new Error('Invalid request.')));
+        }
+        const chats = await Chat.findAll({ offset, limit, order, where: { session: req.query.session } });
+        chats.reverse();
+        return res.json(new Result(await associateInstances(chats, 'Sender', 'Receiver')));
     }))
-    .get('/find', errorWrapper(async (req: Request, res) => {
-        const { offset, count, sort } = req.query;
-        const chats = Chat.find({ offset, limit: count || 3, order: sort, group: 'session' });
-        res.json(new Result(chats));
-    }))
-    .get('/read', errorWrapper(async (req: Request, res) => {
-        const [, chats] = await Chat.update({ read: true }, { where: { chatId: req.query.chatId }, returning: true });
+    .put('/read', errorWrapper(async (req: Request, res) => {
+        const [, chats] = await Chat.update({ read: true }, { where: { id: req.body.chatId }, returning: true });
         res.json(chats && chats.length === 1 && new Result(chats[0]));
     }))
-    .put('/getUnreadNum', errorWrapper(async (req: Request, res) => {
-        const chats = Chat.find({
+    .get('/allUnreadMsgCount', errorWrapper(async (req: Request, res) => {
+        const allUnreadMsgCount = await Chat.count({
             where: {
-                read: false, receiver: req.session.user.id, sender: req.body.sender,
+                read: false, receiverId: req.session.user.id,
             },
         });
-        res.json(new Result(chats));
-    }))
-    .get('/allUnreadMsgNum', errorWrapper(async (req: Request, res) => {
-        const chats = Chat.find({
-            where: {
-                read: false, receiver: req.session.user.id,
-            },
-        });
-        res.json(new Result(chats));
+        res.json(new Result(allUnreadMsgCount));
     }));
 
 app.use('/api/chat', router);

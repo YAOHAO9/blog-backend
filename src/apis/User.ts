@@ -12,22 +12,11 @@ const router = Router()
     .get('/whoami', errorWrapper(async (req: Request, res: Response) => {
         res.json(new Result(req.session.user));
     }))
-    .put('/getOtherUser', errorWrapper(async (req: Request, res: Response) => {
-        const { limit, offset, order } = parseQuery(req.query);
-        const users = await User.findAll({
-            where: { id: { $notIn: req.body.exclude } },
-            limit,
-            offset,
-            order,
-        });
-        res.json(new Result(users));
-    }))
-    .get('/getOtherUser', errorWrapper(async (req: Request, res: Response) => {
+    .get('/getChatUserList', errorWrapper(async (req: Request, res: Response) => {
         const { offset, limit } = parseQuery(req.query);
-        const users = await getChatUserList(req.session.user.id, offset, limit);
+        const users = await getChatUserList(req.session.user.id, offset, limit, req.query.exclude);
         res.json(new Result(users));
     }))
-
     .post('/update/:id', Upload.single('avator'), async (req: Request, res: Response) => {
         const archive = await saveUploadFile(req.file);
         const [, users] = await User.update({ name: req.body.name, avator: archive && archive.id },
