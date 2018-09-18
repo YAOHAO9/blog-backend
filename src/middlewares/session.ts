@@ -21,9 +21,6 @@ const loadSession = errorWrapper(async (req: Request, res: Response, next: NextF
     const key = encrypt(user.id + '');
     res.cookie('encrypted', key, { maxAge: tenYears, httpOnly: true });
     req.session = { user };
-    if (req.path === '/api/user/redirect' && req.query.redirect) {
-        return res.redirect(req.query.redirect);
-    }
     next();
 });
 
