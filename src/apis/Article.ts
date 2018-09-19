@@ -11,17 +11,18 @@ import { bgImgUrl, getArticleAndSaveByUrl } from '../services/ArticleService';
 import Upload, { saveUploadFile } from '../services/UploadService';
 import { errorWrapper } from '../middlewares/server';
 import { parseQuery } from '../utils/Tool';
+import { sendMailToAdmin } from '../services/EmailService';
 
 const router = Router()
     .post('/create', Upload.single('icon'), errorWrapper(async (req: Request, res: Response) => {
         if (!req.body.title) {
-            return res.status(403).send(new Result(new Error('标题不能为空')));
+            return res.status(403).send(new Result(new Error('Title is required')));
         }
         if (!req.body.description) {
-            return res.status(403).send(new Result(new Error('无有效内容')));
+            return res.status(403).send(new Result(new Error('Description is required')));
         }
         if (!req.body.content) {
-            return res.status(403).send(new Result(new Error('内容不能为空')));
+            return res.status(403).send(new Result(new Error('Content is required')));
         }
         let [content] = await parseImgSrc(req.body.content);
         content = await bgImgUrl(content);
@@ -32,7 +33,8 @@ const router = Router()
             icon: (await saveUploadFile(req.file)).id,
         }).save();
         await new ArticleContent({ content, articleId: article.id }).save();
-        return res.json(new Result(article));
+        res.json(new Result(article));
+        return await sendMailToAdmin(req.session.user, `${req.session.user.name} create an article`, content);
     }))
     .get('/', errorWrapper(async (req: Request, res: Response) => {
         const { limit, offset, order } = parseQuery(req.query);

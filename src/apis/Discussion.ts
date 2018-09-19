@@ -5,14 +5,9 @@ import { Result } from '../interfaces/Respond';
 import { errorWrapper } from '../middlewares/server';
 import Discussion from '../models/Discussion.model';
 import User from '../models/User.model';
+import { sendMailToAdmin } from '../services/EmailService';
 
 const router = Router()
-    .get('/:id', errorWrapper(async (req: Request, res: Response) => {
-        const discussion = await Discussion.findById(req.param('id'), {
-            include: [User],
-        });
-        res.json(new Result(discussion));
-    }))
     .get('/moment/:momentId', errorWrapper(async (req: Request, res: Response) => {
         const discussions = await Discussion.findAll({
             where: { momentId: req.param('momentId') },
@@ -28,6 +23,8 @@ const router = Router()
             content: '<p>' + req.body.content.replace(/\r\n/g, '<br\/>').replace(/\n/g, '<br\/>') + '<\/p>',
         }).save();
         res.json(new Result(discussion));
+        await sendMailToAdmin(req.session.user,
+            `${req.session.user.name} post a moment discussion(${discussion.momentId}): `, discussion.content);
     }))
     .get('/article/:articleId', errorWrapper(async (req: Request, res: Response) => {
         const discussions = await Discussion.findAll({
@@ -44,6 +41,8 @@ const router = Router()
             content: '<p>' + req.body.content.replace(/\r\n/g, '<br\/>').replace(/\n/g, '<br\/>') + '<\/p>',
         }).save();
         res.json(new Result(discussion));
+        await sendMailToAdmin(req.session.user,
+            `${req.session.user.name} post an article discussion(${discussion.articleId})`, discussion.content);
     }));
 
 app.use('/api/discussion', router);

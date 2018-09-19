@@ -1,0 +1,9 @@
+html
+  head
+    title= subject
+  style
+    include ../css/EmailNotice.css
+  body
+    h3= content
+    each image in images
+      img(src= image)

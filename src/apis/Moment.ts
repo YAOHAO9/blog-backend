@@ -11,19 +11,28 @@ import { errorWrapper } from '../middlewares/server';
 import { parseQuery } from '../utils/Tool';
 import User from '../models/User.model';
 import Discussion from '../models/Discussion.model';
+import { sendMailToAdmin, sendImgMailToAdmin } from '../services/EmailService';
 
 const router = Router()
     .post('/create', Upload.array('images', 9), errorWrapper(async (req: Request, res: Response) => {
         const ip = getClientIp(req);
+        const { content, origin } = req.body;
+        if (!content && req.files.length === 0) {
+            res.status(403).json(new Result(new Error('Content or image is required')));
+            return;
+        }
         const moment = await new Moment({
             userId: req.session.user.id,
-            content: '<p>' + req.body.content.replace(/\r\n/g, '<br\/>').replace(/\n/g, '<br\/>') + '<\/p>',
+            content: '<p>' + content.replace(/\r\n/g, '<br\/>').replace(/\n/g, '<br\/>') + '<\/p>',
             disapproves: [],
             approves: [],
             ip,
         }).save();
-        await saveUploadFiles(req.files, moment.id);
+        const archives = await saveUploadFiles(req.files, moment.id);
         res.json(new Result(moment));
+        await sendImgMailToAdmin(req.session.user,
+            `${req.session.user.name} create a moment`, `${content}`,
+            archives, origin);
     }))
     .get('/', errorWrapper(async (req: Request, res: Response) => {
         const { limit, offset, order } = parseQuery(req.query);
@@ -53,10 +62,10 @@ const router = Router()
         const content = req.body.content;
         const id = req.body.id;
         if (!id) {
-            return res.status(403).json(new Error('参数错误'));
+            return res.status(403).json(new Error('Bad request'));
         }
         if (!content) {
-            return res.status(403).json(new Error('请输入修改过的内容'));
+            return res.status(403).json(new Error('Bad request'));
         }
         const moment = await Moment.update({ id }, { where: { content }, returning: true });
         return res.json(new Result(moment));
@@ -86,6 +95,8 @@ const router = Router()
         moment.disapproves = [...moment.disapproves];
         await moment.save();
         res.json(new Result(moment));
+        await sendMailToAdmin(req.session.user,
+            `${req.session.user.name} likes the moment(${moment.id})`, moment.content);
     }))
     .put('/disapprove/:momentId', errorWrapper(async (req: Request, res: Response) => {
         const user = req.session.user;
@@ -112,6 +123,8 @@ const router = Router()
         moment.disapproves = [...moment.disapproves];
         await moment.save();
         res.json(new Result(moment));
+        await sendMailToAdmin(req.session.user,
+            ` ${req.session.user.name} dislikes the moment${moment.id}`, moment.content);
     }));
 
 app.use('/api/moment', router);

@@ -4,8 +4,8 @@ import app, { server, express } from './services/AppService';
 import initializeRestfulApi from './services/RestfulService';
 import { initializeMiddlewares } from './middlewares';
 import { errorHandler, notFoundHandler } from './middlewares/server';
-import { initializeSocketIO } from './sockets';
 import { initializeSequelize } from './services/SequelizeService';
+import { initializeSocketIO } from './services/SocketService';
 
 const start = async () => {
   // socket.io

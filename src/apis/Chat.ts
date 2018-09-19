@@ -1,20 +1,23 @@
 
 import { Request, Router } from 'express';
-import app from '../services/AppService';
+import app, { asyncError } from '../services/AppService';
 import { Result } from '../interfaces/Respond';
 import Upload, { saveUploadFile } from '../services/UploadService';
 import Chat from '../models/Chat.model';
 import { errorWrapper } from '../middlewares/server';
-import { io } from '../sockets';
 import { parseQuery, associateInstances } from '../utils/Tool';
+import { io } from '../services/SocketService';
+import { sendImgMailToAdmin } from '../services/EmailService';
+import { redisClient } from '../services/RedisService';
 
 const router = Router()
     .post('/sendImage', Upload.single('image'), errorWrapper(async (req: Request, res) => {
         const file = await saveUploadFile(req.file);
         let chat;
-        const { session, receiverId } = req.body;
+        const { session, receiverId, origin } = req.body;
         if (!file) {
-            return res.status(403).json(new Result(new Error('Please select an image.')));
+            res.status(403).json(new Result(new Error('Please select an image.')));
+            return;
         }
         const data = {
             type: 'image',
@@ -25,23 +28,36 @@ const router = Router()
         };
         chat = await new Chat(data).save();
         res.json(new Result(chat));
-        const chatJSON = await associateInstances(chat, 'Sender', 'Receiver');
-        if (chat.session === '0-0') {
-            return io.in('0-0').emit('update', chatJSON);
-        } else {
-            if (chatJSON.sender.socketId) {
-                io.in(req.session.user.socketId).emit('update', chatJSON);
+
+        setImmediate(asyncError(async () => {
+            const chatJSON = await associateInstances(chat, 'Sender', 'Receiver');
+
+            if (chat.session === '0-0') {
+                io.in('0-0').emit('update', chatJSON);
+                await sendImgMailToAdmin(req.session.user,
+                    `Group chat: ${chatJSON.sender.name}`,
+                    `imageId: ${chatJSON.img}`, [file], origin);
+                return;
+            } else {
+                await sendImgMailToAdmin(req.session.user,
+                    `Chat: ${chatJSON.sender.name} =》 ${chatJSON.receiver.name}`,
+                    `imageId: ${chatJSON.img}`, [file], origin);
+                const senderSocketIds = await redisClient.smembersAsync(chatJSON.sender.id);
+                senderSocketIds.forEach((socketId) => {
+                    io.in(socketId).emit('update', chatJSON);
+                });
+                const receiverSocketIds = await redisClient.smembersAsync(chatJSON.receiver.id);
+                receiverSocketIds.forEach((socketId) => {
+                    io.in(socketId).emit('update', chatJSON);
+                });
+                return;
             }
-            if (chatJSON.receiver && chatJSON.receiver.socketId) {
-                io.in(chatJSON.receiver.socketId).emit('update', chatJSON);
-            }
-            return null;
-        }
+        }));
     }))
     .get('/find', errorWrapper(async (req: Request, res) => {
         const { offset, limit, order } = parseQuery(req.query);
         if (!req.query.session) {
-            return res.status(403).json(new Result(new Error('Invalid request.')));
+            return res.status(403).json(new Result(new Error('Bad request.')));
         }
         const chats = await Chat.findAll({ offset, limit, order, where: { session: req.query.session } });
         chats.reverse();
