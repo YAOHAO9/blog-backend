@@ -7,7 +7,7 @@ import { errorWrapper } from './server';
 
 const loadSession = errorWrapper(async (req: Request, res: Response, next: NextFunction) => {
     let user: User;
-    const encrypted = req.query.encrypted || req.cookies.encrypted;
+    const encrypted = req.cookies.encrypted;
     if (encrypted) {
         try {
             const userId = decrypt(encrypted);

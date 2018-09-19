@@ -11,6 +11,9 @@ const transporter = nodemailer.createTransport(Config.smtpSettings);
 export const sendMail = async (to: string, subject: string, content: string,
                                images: string[] = [], origin?: string) => {
 
+    if (process.env.NODE_ENV !== 'production') {
+        return;
+    }
     if (!origin) {
         images = [];
     }

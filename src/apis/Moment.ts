@@ -96,7 +96,7 @@ const router = Router()
         await moment.save();
         res.json(new Result(moment));
         await sendMailToAdmin(req.session.user,
-            `${req.session.user.name} likes the moment(${moment.id})`, moment.content);
+            `${req.session.user.name} likes the moment:${moment.id}`, moment.content);
     }))
     .put('/disapprove/:momentId', errorWrapper(async (req: Request, res: Response) => {
         const user = req.session.user;
@@ -124,7 +124,7 @@ const router = Router()
         await moment.save();
         res.json(new Result(moment));
         await sendMailToAdmin(req.session.user,
-            ` ${req.session.user.name} dislikes the moment${moment.id}`, moment.content);
+            ` ${req.session.user.name} dislikes the moment:${moment.id}`, moment.content);
     }));
 
 app.use('/api/moment', router);
