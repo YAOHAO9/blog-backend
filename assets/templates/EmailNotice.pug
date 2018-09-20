@@ -1,9 +1,11 @@
 html
   head
     title= subject
+    meta(name="viewport" content="width=device-width, initial-scale=1, user-scalable=no")
   style
     include ../css/EmailNotice.css
   body
     h3= content
+    a(href= accessOrigin) 详情
     each image in images
       img(src= image)

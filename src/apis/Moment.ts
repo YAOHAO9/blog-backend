@@ -16,7 +16,7 @@ import { sendMailToAdmin, sendImgMailToAdmin } from '../services/EmailService';
 const router = Router()
     .post('/create', Upload.array('images', 9), errorWrapper(async (req: Request, res: Response) => {
         const ip = getClientIp(req);
-        const { content, origin } = req.body;
+        const { content } = req.body;
         if (!content && req.files.length === 0) {
             res.status(403).json(new Result(new Error('Content or image is required')));
             return;
@@ -32,7 +32,7 @@ const router = Router()
         res.json(new Result(moment));
         await sendImgMailToAdmin(req.session.user,
             `${req.session.user.name} create a moment`, `${content}`,
-            archives, origin);
+            archives);
     }))
     .get('/', errorWrapper(async (req: Request, res: Response) => {
         const { limit, offset, order } = parseQuery(req.query);

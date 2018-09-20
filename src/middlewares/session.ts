@@ -7,7 +7,7 @@ import { errorWrapper } from './server';
 
 const loadSession = errorWrapper(async (req: Request, res: Response, next: NextFunction) => {
     let user: User;
-    const encrypted = req.cookies.encrypted;
+    let encrypted = req.cookies.encrypted;
     if (encrypted) {
         try {
             const userId = decrypt(encrypted);
@@ -18,8 +18,8 @@ const loadSession = errorWrapper(async (req: Request, res: Response, next: NextF
         user = await new User({ name: getRandomName() }).save();
     }
     const tenYears = 10 * 365 * 24 * 60 * 60 * 1000;
-    const key = encrypt(user.id + '');
-    res.cookie('encrypted', key, { maxAge: tenYears, httpOnly: true });
+    encrypted = encrypt(user.id + '');
+    res.cookie('encrypted', encrypted, { maxAge: tenYears, httpOnly: true });
     req.session = { user };
     next();
 });

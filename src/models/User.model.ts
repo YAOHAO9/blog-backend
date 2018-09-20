@@ -26,7 +26,7 @@ export default class User extends Model<User> {
   public avator: number;
 
   @Column
-  public socketId: string;
+  public accessOrigin: string;
 
   @CreatedAt
   public createdAt: Date;

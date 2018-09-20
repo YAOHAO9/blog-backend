@@ -11,7 +11,8 @@ import * as QRCode from 'qrcode';
 import { promisify } from 'bluebird';
 import { decrypt, encrypt } from '../utils/Crypto';
 import { io } from '../services/SocketService';
-
+import { getRandomName } from '../config/famousNames';
+const tenYears = 10 * 365 * 24 * 60 * 60 * 1000;
 const router = Router()
     .get('/whoami', errorWrapper(async (req: Request, res: Response) => {
         res.json(new Result(req.session.user));
@@ -27,6 +28,12 @@ const router = Router()
             { where: { id: req.param('id') }, returning: true });
         res.json(new Result(users[0]));
     })
+    .get('/reset', errorWrapper(async (_: Request, res: Response) => {
+        const user = await new User({ name: getRandomName() }).save();
+        const encrypted = encrypt(user.id + '');
+        res.cookie('encrypted', encrypted, { maxAge: tenYears, httpOnly: true });
+        return res.redirect('/');
+    }))
     .get('/qrcode', errorWrapper(async (req: Request, res: Response) => {
         if (!req.query.origin) {
             return res.status(403).json(new Result(new Error('Bad request.')));
@@ -44,7 +51,7 @@ const router = Router()
             return;
         }
         if (!req.cookies.encrypted || req.query.encrypted === req.cookies.encrypted) {
-            const tenYears = 10 * 365 * 24 * 60 * 60 * 1000;
+
             res.cookie('encrypted', req.query.encrypted, { maxAge: tenYears, httpOnly: true });
             res.redirect(req.query.origin);
             return;
@@ -64,9 +71,8 @@ const router = Router()
             res.status(403).json(new Result(new Error('Bad request.')));
             return;
         }
-        const tenYears = 10 * 365 * 24 * 60 * 60 * 1000;
-        const key = encrypt(user.id + '');
-        res.cookie('encrypted', key, { maxAge: tenYears, httpOnly: true });
+        const encrypted = encrypt(user.id + '');
+        res.cookie('encrypted', encrypted, { maxAge: tenYears, httpOnly: true });
         return res.redirect(req.query.redirect);
     }))
     .get('/synchronizeToPc', errorWrapper(async (req: Request, res: Response) => {
@@ -77,6 +83,15 @@ const router = Router()
         }
         io.in(socketIdOfPc).emit('synchronize', { encrypted: encryptedOfPhone });
         res.end();
+    }))
+    .get('/encryptedUser', errorWrapper(async (req: Request, res: Response) => {
+        const userId = decrypt(req.query.encrypted);
+        const user = await User.findById(+userId);
+        if (!user) {
+            res.status(403).json(new Result(new Error('Bad request.')));
+            return;
+        }
+        res.json(new Result(user));
     }));
 
 app.use('/api/user', router);

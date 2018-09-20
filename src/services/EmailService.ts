@@ -5,21 +5,15 @@ import User from '../models/User.model';
 import * as pug from 'pug';
 import Archive from '../models/Archive.model';
 import { path } from '../utils/Tool';
+import { encrypt } from '../utils/Crypto';
 
 const transporter = nodemailer.createTransport(Config.smtpSettings);
 
-export const sendMail = async (to: string, subject: string, content: string,
-                               images: string[] = [], origin?: string) => {
+export const sendMail = async (to: string, subject: string, html: string) => {
 
     if (process.env.NODE_ENV !== 'production') {
         return;
     }
-    if (!origin) {
-        images = [];
-    }
-
-    const html = pug.renderFile(path.join(__dirname, '../../assets/templates/EmailNotice.pug'),
-        { subject, content, images });
     const mailOptions = {
         from: Config.smtpSettings.sendmailFrom, // sender address
         to, // list of receivers
@@ -31,21 +25,12 @@ export const sendMail = async (to: string, subject: string, content: string,
     return info;
 };
 
-export const sendMailToAdmin = async (user: User, subject: string, content: string,
-) => {
-    if (user.isAdmin) {
-        return;
-    }
-    // notice admin
-    const admin = await User.findOne({ where: { isAdmin: true, email: { $ne: null } } });
-    if (!admin) {
-        return;
-    }
-    return sendMail(admin.email, subject, content);
+export const sendMailToAdmin = async (user: User, subject: string, content: string) => {
+    return sendImgMailToAdmin(user, subject, content);
 };
 
 export const sendImgMailToAdmin = async (user: User, subject: string, content: string,
-                                         archives: Archive[], origin?: string) => {
+                                         archives: Archive[] = []) => {
     if (user.isAdmin) {
         return;
     }
@@ -54,6 +39,13 @@ export const sendImgMailToAdmin = async (user: User, subject: string, content: s
     if (!admin) {
         return;
     }
-    const images = archives.map((archive) => `${origin}/api/archive/${archive.id}`);
-    return sendMail(admin.email, subject, content, images, origin);
+    const encrypted = encrypt(admin.id + '');
+    const accessOrigin = `${user.accessOrigin}/api/user/redirect?encrypted=${encrypted}&redirect=${user.accessOrigin}`;
+
+    content = content.replace(/<\/?.*?>/gi, '');
+    const images = archives.map((archive) => `${user.accessOrigin}/api/archive/${archive.id}`);
+    const html = pug.renderFile(path.join(__dirname, '../../assets/templates/EmailNotice.pug'),
+        { subject, content, images, accessOrigin });
+
+    return sendMail(admin.email, subject, html);
 };

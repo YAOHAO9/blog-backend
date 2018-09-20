@@ -14,7 +14,7 @@ const router = Router()
     .post('/sendImage', Upload.single('image'), errorWrapper(async (req: Request, res) => {
         const file = await saveUploadFile(req.file);
         let chat;
-        const { session, receiverId, origin } = req.body;
+        const { session, receiverId } = req.body;
         if (!file) {
             res.status(403).json(new Result(new Error('Please select an image.')));
             return;
@@ -36,12 +36,12 @@ const router = Router()
                 io.in('0-0').emit('update', chatJSON);
                 await sendImgMailToAdmin(req.session.user,
                     `Group chat: ${chatJSON.sender.name}`,
-                    `imageId: ${chatJSON.img}`, [file], origin);
+                    `imageId: ${chatJSON.img}`, [file]);
                 return;
             } else {
                 await sendImgMailToAdmin(req.session.user,
                     `Chat: ${chatJSON.sender.name} =》 ${chatJSON.receiver.name}`,
-                    `imageId: ${chatJSON.img}`, [file], origin);
+                    `imageId: ${chatJSON.img}`, [file]);
                 const senderSocketIds = await redisClient.smembersAsync(chatJSON.sender.id);
                 senderSocketIds.forEach((socketId) => {
                     io.in(socketId).emit('update', chatJSON);

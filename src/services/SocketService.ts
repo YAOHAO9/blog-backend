@@ -16,8 +16,9 @@ const onJoinIn = (socket: SocketIO.Socket) => {
 };
 
 const onWhoami = (socket: SocketIO.Socket) => {
-    socket.on('whoami', asyncError(async (userId) => {
-        const user = await User.findById(userId);
+    socket.on('whoami', asyncError(async (data) => {
+        const user = await User.findById(data.userId);
+        user.accessOrigin = data.accessOrigin;
         user.loginTimes++;
         await user.save();
         await redisClient.setAsync(socket.id, user.id);
