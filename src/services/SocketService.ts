@@ -20,6 +20,7 @@ const onWhoami = (socket: SocketIO.Socket) => {
         const user = await User.findById(data.userId);
         user.accessOrigin = data.accessOrigin;
         user.loginTimes++;
+        user.online = true;
         await user.save();
         await redisClient.setAsync(socket.id, user.id);
         await redisClient.saddAsync(user.id, socket.id);
@@ -61,6 +62,7 @@ const onDisconnect = (socket: SocketIO.Socket) => {
     // tslint:disable-next-line:only-arrow-functions
     socket.on('disconnect', async (/* reason */) => {
         const userId = await redisClient.getAsync(socket.id);
+        await User.update({ online: false }, { where: { id: userId } });
         await redisClient.delAsync(socket.id);
         await redisClient.sremAsync(userId, socket.id);
     });

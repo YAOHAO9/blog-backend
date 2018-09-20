@@ -28,6 +28,10 @@ export default class User extends Model<User> {
   @Column
   public accessOrigin: string;
 
+  @Default(false)
+  @Column
+  public online: boolean;
+
   @CreatedAt
   public createdAt: Date;
 
