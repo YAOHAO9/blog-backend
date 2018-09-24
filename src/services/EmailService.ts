@@ -2,9 +2,8 @@ import Config from '../config';
 import * as nodemailer from 'nodemailer';
 import { promisify } from 'bluebird';
 import User from '../models/User.model';
-import * as pug from 'pug';
 import Archive from '../models/Archive.model';
-import { path } from '../utils/Tool';
+import { path, pug } from '../utils/Tool';
 import { encrypt } from '../utils/Crypto';
 
 const transporter = nodemailer.createTransport(Config.smtpSettings);

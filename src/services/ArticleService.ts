@@ -57,8 +57,7 @@ export const getArticleAndSaveByUrl = async (url, cookie, textAreaId, articleTyp
         const origin = 'https://segmentfault.com';
         // tslint:disable-next-line:prefer-const
         let [newHtml, fileIds] = await parseImgSrc(data, origin);
-        newHtml = `<div class="markdown">${newHtml}</div>`;
-
+        newHtml = `<div class="markdown">${newHtml.replace(/<\/?(html|head|body)>/g, '')}</div>`;
         const article = await new Article({
             userId: (await User.findOne({ where: { isAdmin: true } })).id,
             title,

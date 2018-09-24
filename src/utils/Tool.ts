@@ -1,8 +1,8 @@
 import * as http from 'http';
 import * as fs from 'fs';
 import * as path from 'path';
-
-export { http, fs, path };
+import * as pug from 'pug';
+export { http, fs, path, pug };
 /**
  * 根据 ip 获取获取地址信息
  */

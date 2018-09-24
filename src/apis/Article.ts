@@ -10,7 +10,7 @@ import Discussion from '../models/Discussion.model';
 import { bgImgUrl, getArticleAndSaveByUrl } from '../services/ArticleService';
 import Upload, { saveUploadFile } from '../services/UploadService';
 import { errorWrapper } from '../middlewares/server';
-import { parseQuery } from '../utils/Tool';
+import { parseQuery, pug, path } from '../utils/Tool';
 import { sendMailToAdmin } from '../services/EmailService';
 
 const router = Router()
@@ -71,6 +71,16 @@ const router = Router()
             ], limit: 10,
         });
         return res.json(new Result(article));
+    }))
+    .get('/detailHtml/:id', errorWrapper(async (req: Request, res: Response) => {
+        const article: Article = await Article.findById(req.param('id'), {
+            include: [
+                ArticleContent,
+            ], limit: 10,
+        });
+        const html = pug.renderFile(path.join(__dirname, '../../assets/templates/MarkdownArticle.pug'),
+            { content: article.content.content });
+        res.send(html);
     }));
 
 app.use('/api/article', router);
