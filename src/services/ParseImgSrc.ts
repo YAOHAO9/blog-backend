@@ -46,7 +46,7 @@ const parseImgSrc = async (content: string, baseHttp: string = null) => {
                         size: 0,
                     }).save();
                 }
-                $(img).attr('src', 'api/archive/' + archive.id);
+                $(img).attr('src', '/api/archive/' + archive.id);
                 return archive.id;
             });
         tasks.push(task);
