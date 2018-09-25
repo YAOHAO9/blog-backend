@@ -6,7 +6,7 @@ import { errorWrapper } from '../middlewares/server';
 import Upload, { saveUploadFile } from '../services/UploadService';
 import User from '../models/User.model';
 import { parseQuery } from '../utils/Tool';
-import { getChatUserList } from '../services/ChatService';
+import { getChatUserList, getChatedUserList } from '../services/ChatService';
 import * as QRCode from 'qrcode';
 import { promisify } from 'bluebird';
 import { decrypt, encrypt } from '../utils/Crypto';
@@ -20,6 +20,11 @@ const router = Router()
     .get('/getChatUserList', errorWrapper(async (req: Request, res: Response) => {
         const { offset, limit } = parseQuery(req.query);
         const users = await getChatUserList(req.session.user.id, offset, limit, req.query.exclude);
+        res.json(new Result(users));
+    }))
+    .get('/getChatedUserList', errorWrapper(async (req: Request, res: Response) => {
+        const { offset, limit } = parseQuery(req.query);
+        const users = await getChatedUserList(req.session.user.id, offset, limit, req.query.exclude);
         res.json(new Result(users));
     }))
     .post('/update/:id', Upload.single('avator'), async (req: Request, res: Response) => {
