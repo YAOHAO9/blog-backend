@@ -3,7 +3,7 @@ import * as SocketIO from 'socket.io';
 import * as socketRedis from 'socket.io-redis';
 import { server, asyncError } from '../services/AppService';
 import Config from '../config';
-import Chat from '../models/Chat.model';
+import Chat, { ChatType } from '../models/Chat.model';
 import User from '../models/User.model';
 import { associateInstances } from '../utils/Tool';
 import { redisClient } from './RedisService';
@@ -33,7 +33,7 @@ const onWhoami = (socket: SocketIO.Socket) => {
 
 const onSubmit = (socket: SocketIO.Socket) => {
     socket.on('submit', asyncError(async (chat) => {
-        const chatInstance = await new Chat(chat).save();
+        const chatInstance = await new Chat(Object.assign(chat, { type: ChatType.TEXT })).save();
         const chatJSON = await associateInstances(chatInstance, 'Sender', 'Receiver');
         if (chatJSON.session === '0-0') {
             io.in('0-0').emit('update', chatJSON);

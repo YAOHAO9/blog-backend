@@ -3,7 +3,7 @@ import { Request, Router } from 'express';
 import app, { asyncError } from '../services/AppService';
 import { Result } from '../interfaces/Respond';
 import Upload, { saveUploadFile } from '../services/UploadService';
-import Chat from '../models/Chat.model';
+import Chat, { ChatType } from '../models/Chat.model';
 import { errorWrapper } from '../middlewares/server';
 import { parseQuery, associateInstances } from '../utils/Tool';
 import { io } from '../services/SocketService';
@@ -20,7 +20,7 @@ const router = Router()
             return;
         }
         const data = {
-            type: 'image',
+            type: ChatType.IMAGE,
             img: file.id,
             senderId: req.session.user.id,
             session,

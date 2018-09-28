@@ -1,7 +1,12 @@
 import {
-  Table, Column, Model, CreatedAt, UpdatedAt, DataType, ForeignKey, BelongsTo, Default,
+  Table, Column, Model, CreatedAt, UpdatedAt, DataType, ForeignKey, BelongsTo, Default, AllowNull,
 } from 'sequelize-typescript';
 import User from './User.model';
+
+export enum ChatType {
+  TEXT = 'text',
+  IMAGE = 'image',
+}
 
 @Table
 export default class Chat extends Model<Chat> {
@@ -10,6 +15,7 @@ export default class Chat extends Model<Chat> {
   public session: string;
 
   @ForeignKey(() => User)
+  @AllowNull(false)
   @Column
   public senderId: number;
 
@@ -23,6 +29,7 @@ export default class Chat extends Model<Chat> {
   @BelongsTo(() => User, { foreignKey: 'receiverId', targetKey: 'id' })
   public receiver: User;
 
+  @AllowNull(false)
   @Column
   public type: string;
 
