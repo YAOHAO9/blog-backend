@@ -67,6 +67,14 @@ const router = Router()
         const [, chats] = await Chat.update({ read: true }, { where: { id: req.body.chatId }, returning: true });
         res.json(chats && chats.length === 1 && new Result(chats[0]));
     }))
+    .get('/unreadMsgCount/:senderId', errorWrapper(async (req: Request, res) => {
+        const unreadMsgCount = await Chat.count({
+            where: {
+                read: false, receiverId: req.session.user.id, senderId: req.param('senderId'),
+            },
+        });
+        res.json(new Result(unreadMsgCount));
+    }))
     .get('/allUnreadMsgCount', errorWrapper(async (req: Request, res) => {
         const allUnreadMsgCount = await Chat.count({
             where: {
