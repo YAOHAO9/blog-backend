@@ -1,0 +1,30 @@
+{
+  "_comment": "Application configuration section http://pm2.keymetrics.io/docs/usage/application-declaration/",
+  "apps": [
+    {
+      "_comment": "First application",
+      "name": "BlogBackend1",
+      "max_memory_restart": "300M",
+      "script": "build/index.js",
+      "merge_logs": true,
+      "log_date_format": "YYYY-MM-DD HH:mm:ss Z",
+      "log_type": "json",
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": 3000
+      }
+    },
+    {
+      "name": "BlogBackend2",
+      "max_memory_restart": "300M",
+      "script": "build/index.js",
+      "merge_logs": true,
+      "log_date_format": "YYYY-MM-DD HH:mm:ss Z",
+      "log_type": "json",
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": 3001
+      }
+    }
+  ]
+}
