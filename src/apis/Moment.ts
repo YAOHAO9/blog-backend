@@ -8,10 +8,14 @@ import { Result } from '../interfaces/Respond';
 import isAdmin from '../middlewares/Admin';
 import Archive from '../models/Archive.model';
 import { errorWrapper } from '../middlewares/server';
-import { parseQuery } from '../utils/Tool';
+import { parseQuery, path, fs } from '../utils/Tool';
 import User from '../models/User.model';
 import Discussion from '../models/Discussion.model';
 import { sendMailToAdmin, sendImgMailToAdmin } from '../services/EmailService';
+import Axios from 'axios';
+import * as superagent from 'superagent';
+import Config from '../config';
+import { hash } from '../utils/Crypto';
 
 const router = Router()
     .post('/create', Upload.array('images', 9), errorWrapper(async (req: Request, res: Response) => {
@@ -125,6 +129,48 @@ const router = Router()
         res.json(new Result(moment));
         await sendMailToAdmin(req.session.user,
             ` ${req.session.user.name} dislikes the moment:${moment.id}`, moment.content);
+    }))
+    .get('/fromSails', errorWrapper(async (req: Request, res: Response) => {
+        // tslint:disable-next-line:max-line-length
+        const moments: any[] = await Axios.get(`http://localhost:8088/api/moment?sort=createdAt%20DESC&limit=1000`)
+            .then((res) => res.data);
+        moments.forEach(async (moment) => {
+            moment.userId = req.session.user.id;
+            const momentInstance = await new Moment(moment).save();
+            moment.images.map((image) => {
+                const src = `http://localhost:1337/api/file/find/${image}`;
+                new Promise<string>(async (resolve, reject) => {
+                    try {
+                        const filePath = path.join(Config.uploadPath, hash(src));
+                        const writeStream = fs.createWriteStream(filePath);
+                        superagent(src).pipe(writeStream);
+                        writeStream.on('finish', () => {
+                            resolve(filePath);
+                        });
+                        writeStream.on('error', (e) => {
+                            reject(e);
+                        });
+                    } catch (e) {
+                        reject(e);
+                    }
+                })
+                    .then(async (filePath) => {
+                        let archive = await Archive.findOne({ where: { path: filePath } });
+                        if (!archive) {
+                            archive = await new Archive({
+                                momentId: momentInstance.id,
+                                path: filePath,
+                                mimetype: 'image/jpeg',
+                                destination: Config.uploadPath,
+                                filename: src,
+                                size: 0,
+                            }).save();
+                        }
+                        return archive.id;
+                    });
+            });
+        });
+        res.json(moments);
     }));
 
 app.use('/api/moment', router);

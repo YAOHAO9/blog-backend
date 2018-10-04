@@ -53,7 +53,7 @@ const operatorsAliases = {
 export const sequelize = new Sequelize(Object.assign(Config.sequelize, { operatorsAliases }));
 
 export const initializeSequelize = async () => {
-    await sequelize.validate();
+    await sequelize.sync();
     await AccessRecord.sync({ alter: true });
     await Archive.sync({ alter: true });
     await Article.sync({ alter: true });

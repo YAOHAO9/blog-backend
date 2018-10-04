@@ -21,6 +21,7 @@
   "dependencies": {
     "@types/node": "^10.1.4",
     "@types/socket.io-redis": "^1.0.25",
+    "axios": "^0.18.0",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
     "cheerio": "^1.0.0-rc.2",
