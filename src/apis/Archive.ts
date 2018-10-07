@@ -4,7 +4,7 @@ import app from '../services/AppService';
 import { Result } from '../interfaces/Respond';
 import { errorWrapper } from '../middlewares/server';
 import Archive from '../models/Archive.model';
-import { fs } from '../utils/Tool';
+import { fs, path } from '../utils/Tool';
 
 const router = Router()
     .get('/:id', errorWrapper(async (req: Request, res) => {
@@ -12,7 +12,7 @@ const router = Router()
         if (!file) {
             return res.status(404).json(new Result(new Error('Not found.')));
         }
-        return fs.createReadStream(file.path).pipe(res);
+        return fs.createReadStream(path.resolve(file.path)).pipe(res);
     }))
     .post('/create', (_, res: Response) => {
         res.jsonp({ aaa: 111 });
