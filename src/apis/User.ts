@@ -44,41 +44,11 @@ const router = Router()
             return res.status(403).json(new Result(new Error('Bad request.')));
         }
         const toDataURL = promisify<string, string>(QRCode.toDataURL, { context: QRCode });
-        const url = `${req.query.origin}/api/user/qrcodeLogin?encrypted=${
+        const url = `${req.query.origin}/api/web/qrcodeLogin?encrypted=${
             req.cookies.encrypted
             }&origin=${req.query.origin}&socketId=${req.cookies.io}`;
         const imgBase64 = await toDataURL(url);
         return res.json(new Result(imgBase64));
-    }))
-    .get('/qrcodeLogin', errorWrapper(async (req: Request, res: Response) => {
-        if (!req.query.origin || !req.query.encrypted) {
-            res.status(403).json(new Result(new Error('Bad request.')));
-            return;
-        }
-        if (!req.cookies.encrypted || req.query.encrypted === req.cookies.encrypted) {
-
-            res.cookie('encrypted', req.query.encrypted, { maxAge: tenYears, httpOnly: true });
-            res.redirect(req.query.origin);
-            return;
-        }
-
-        res.redirect(`${req.query.origin}/#!/synchronize?encrypted=${
-            req.query.encrypted
-            }&socketId=${req.query.socketId}`);
-    }))
-    .get('/redirect', errorWrapper(async (req: Request, res: Response) => {
-        if (!req.query.redirect) {
-            return res.status(403).json(new Result(new Error('Bad request.')));
-        }
-        const userId = decrypt(req.query.encrypted);
-        const user = await User.findById(+userId);
-        if (!user) {
-            res.status(403).json(new Result(new Error('Bad request.')));
-            return;
-        }
-        const encrypted = encrypt(user.id + '');
-        res.cookie('encrypted', encrypted, { maxAge: tenYears, httpOnly: true });
-        return res.redirect(req.query.redirect);
     }))
     .get('/synchronizeToPc', errorWrapper(async (req: Request, res: Response) => {
         const encryptedOfPhone = req.cookies.encrypted;
