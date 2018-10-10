@@ -39,7 +39,7 @@ export const sendImgMailToAdmin = async (user: User, subject: string, content: s
         return;
     }
     const encrypted = encrypt(admin.id + '');
-    const accessOrigin = `${user.accessOrigin}/api/user/redirect?encrypted=${encrypted}&redirect=${user.accessOrigin}`;
+    const accessOrigin = `${user.accessOrigin}/api/web/redirect?encrypted=${encrypted}&redirect=${user.accessOrigin}`;
 
     content = content.replace(/<\/?.*?>/gi, '');
     const images = archives.map((archive) => `${user.accessOrigin}/api/archive/${archive.id}`);
