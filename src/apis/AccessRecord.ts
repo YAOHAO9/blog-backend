@@ -11,8 +11,16 @@ const router = Router()
         if (req.session.user.isAdmin) {
             return res.json();
         }
-        const accessRecord = await new AccessRecord(Object.assign(req.body,
-            { userId: req.session.user.id, ip: getClientIp(req), date })).save();
+        const accessRecord = await new AccessRecord(
+            Object.assign(
+                req.body,
+                {
+                    userId: req.session.user.id,
+                    ip: getClientIp(req), date,
+                    params: JSON.stringify(req.body.params),
+                },
+            ))
+            .save();
         return res.json(accessRecord);
     }));
 
