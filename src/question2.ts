@@ -30,6 +30,10 @@ array.forEach((item) => {
   arrayObj[item.id] = Object.assign({ item }, item);
 });
 
+if (!first || !last) {
+  throw new Error(`Invalid chain.`);
+}
+
 // find the after item
 array.forEach((item) => {
   if (item.before) {
