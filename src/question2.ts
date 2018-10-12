@@ -7,7 +7,7 @@ const array = [
   { id: 7, after: 8 },
   { id: 8 },
   { id: 9 },
-]
+];
 const arrayObj = {};
 
 // tslint:disable-next-line:one-variable-per-declaration
