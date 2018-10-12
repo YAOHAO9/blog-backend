@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es6",
+        "target": "es2018",
         "module": "commonjs",
         "moduleResolution": "node",
         "outDir": "build",
@@ -14,10 +14,7 @@
         "noUnusedParameters": true,
         "noUnusedLocals": true,
         "lib": [
-            "es2015",
-            "es2017",
-            "es2015.promise",
-            "esnext.asynciterable"
+            "es2018",
         ],
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
