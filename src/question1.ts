@@ -28,17 +28,26 @@ const closeInput = () => {
     }
     return b.P - a.P;
   });
-  console.dir(matchResultList);
+  console.log('Team', ' | ', 'MP', ' | ', 'W', ' | ', 'D', ' | ', 'L', ' | ', 'P');
+  matchResultList.forEach((matchResult) => {
+    // tslint:disable-next-line:max-line-length
+    console.log(matchResult.Team, ' | ', matchResult.MP, ' | ', matchResult.W, ' | ', matchResult.D, ' | ', matchResult.L, ' | ', matchResult.P);
+  });
 };
 console.log('Please input data:');
 
 rl.on('line', (line: string) => {
-  if (!line || (line.match(/;/g) && line.match(/;/g).length !== 2)) {
+  if (!line || !line.match(/;/g) || line.match(/;/g).length !== 2) {
     rl.close();
     closeInput();
     return;
   }
   const [teamName1, teamName2, result] = line.split(';');
+  if (!(['win', 'draw', 'loss'].includes(result))) {
+    rl.close();
+    closeInput();
+    return;
+  }
   if (!matchReuslts[teamName1]) {
     matchReuslts[teamName1] = new MatchResult(teamName1);
   }
@@ -59,9 +68,6 @@ rl.on('line', (line: string) => {
     case 'loss':
       team1.L++;
       team2.W++;
-      break;
-    default:
-      closeInput();
       break;
   }
   team1.MP++;
