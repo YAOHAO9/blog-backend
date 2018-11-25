@@ -39,7 +39,8 @@ export const sendImgMailToAdmin = async (user: User, subject: string, content: s
         return;
     }
     const encrypted = encrypt(admin.id + '');
-    const accessOrigin = `${user.accessOrigin}/api/web/redirect?encrypted=${encrypted}&redirect=${user.accessOrigin}`;
+    // tslint:disable-next-line:max-line-length
+    const accessOrigin = `${user.accessOrigin}/api/web/changeLoginUser?encrypted=${encrypted}&redirect=${user.accessOrigin}`;
 
     content = content.replace(/<\/?.*?>/gi, '');
     const images = archives.map((archive) => `${user.accessOrigin}/api/archive/${archive.id}`);
