@@ -44,8 +44,9 @@ export const sendImgMailToAdmin = async (user: User, subject: string, content: s
 
     content = content.replace(/<\/?.*?>/gi, '');
     const images = archives.map((archive) => `${user.accessOrigin}/api/archive/${archive.id}`);
+    const accessRecordsUrl = `${user.accessOrigin}/api/accessrecord/format?userId=${user.id}&sort=-createdAt`;
     const html = pug.renderFile(path.join(__dirname, '../../assets/templates/EmailNotice.pug'),
-        { subject, content, images, accessOrigin });
+        { subject, content, images, accessOrigin, accessRecordsUrl });
 
     return sendMail(admin.email, subject, html);
 };

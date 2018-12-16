@@ -6,7 +6,16 @@ html
     include ../css/EmailNotice.css
   body
     h3= content
+    br
     a(href= accessOrigin) 详情
-    p= accessOrigin
+    br
+    a(href= accessRecordsUrl) Access records
+    br
     each image in images
       img(src= image)
+    
+    br
+    br
+    p= accessOrigin
+    
+    
