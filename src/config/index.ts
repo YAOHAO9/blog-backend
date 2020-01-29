@@ -33,7 +33,7 @@ export interface ConfigInterface {
 let Config: ConfigInterface = {
     sequelize: {
         database: 'mobileblog',
-        dialect: 'postgres',
+        dialect: 'mysql',
         pool: {
             max: 5,
             min: 0,
@@ -42,13 +42,11 @@ let Config: ConfigInterface = {
         },
         define: {
             charset: 'utf8',
-            dialectOptions: {
-                collate: 'utf8_general_ci',
-            },
+            collate: 'utf8_general_ci',
             timestamps: true,
         },
-        username: 'postgres',
-        password: '',
+        username: 'root',
+        password: '123',
         modelPaths: [__dirname + '/../models'],
     },
     redis: {

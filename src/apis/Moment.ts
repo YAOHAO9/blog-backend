@@ -42,8 +42,8 @@ const router = Router()
                 User,
                 Discussion,
             ],
-            offset,
-            limit,
+            offset: +offset,
+            limit: +limit,
             order,
         });
         const momentJsons = await Promise.all(moments.map(async (moment) => {

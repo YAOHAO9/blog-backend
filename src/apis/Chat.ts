@@ -59,7 +59,12 @@ const router = Router()
         if (!req.query.session) {
             return res.status(403).json(new Result(new Error('Bad request.')));
         }
-        const chats = await Chat.findAll({ offset, limit, order, where: { session: req.query.session } });
+        const chats = await Chat.findAll({
+            offset: +offset,
+            limit: +limit,
+            order,
+            where: { session: req.query.session }
+        });
         chats.reverse();
         return res.json(new Result(await associateInstances(chats, 'Sender', 'Receiver')));
     }))

@@ -43,8 +43,8 @@ const router = Router()
                 Discussion,
                 User,
             ],
-            offset,
-            limit,
+            offset: +offset,
+            limit: +limit,
             order,
         });
         return res.json(new Result(articles));
@@ -61,7 +61,7 @@ const router = Router()
         const articleType = 'segmentFaultArticle';
         await Article.destroy({ where: { type: articleType } });
         const articles = await getArticleAndSaveByUrl('https://segmentfault.com/u/yaohao/articles',
-            `sf_remember=${req.query.sf_remember}`, '#myEditor', articleType);
+            `sf_remember=${req.query.sf_remember}`, '#text-hidden', articleType);
         res.json(new Result(articles));
     }))
     .get('/:id', errorWrapper(async (req: Request, res: Response) => {

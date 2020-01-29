@@ -1,5 +1,5 @@
 import {
-  Table, Column, Model, CreatedAt, UpdatedAt, DataType, BelongsTo, HasOne, ForeignKey, HasMany, Default,
+  Table, Column, Model, CreatedAt, UpdatedAt, DataType, BelongsTo, HasOne, ForeignKey, HasMany,
 } from 'sequelize-typescript';
 import ArticleContent from './ArticleContent.model';
 import User from './User.model';
@@ -33,12 +33,8 @@ export default class Article extends Model<Article>   {
   @HasMany(() => Discussion)
   public discussions: Discussion[];
 
-  @Default([])
-  @Column(DataType.ARRAY(DataType.INTEGER))
   public approves: number[];
 
-  @Default([])
-  @Column(DataType.ARRAY(DataType.INTEGER))
   public disapproves: number[];
 
   @CreatedAt

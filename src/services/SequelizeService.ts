@@ -11,6 +11,7 @@ import Moment from '../models/Moment.model';
 import MomentApprove from '../models/MomentApprove.model';
 import MomentDisapprove from '../models/MomentDisapprove.model';
 import User from '../models/User.model';
+import ArticleContent from '../models/ArticleContent.model';
 
 const Op = Sequelize.Op;
 const operatorsAliases = {
@@ -58,6 +59,7 @@ export const initializeSequelize = async () => {
     await Archive.sync({ alter: true });
     await Article.sync({ alter: true });
     await ArticleApprove.sync({ alter: true });
+    await ArticleContent.sync({ alter: true });
     await ArticleDisapprove.sync({ alter: true });
     await Chat.sync({ alter: true });
     await Discussion.sync({ alter: true });

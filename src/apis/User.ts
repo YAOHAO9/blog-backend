@@ -19,12 +19,12 @@ const router = Router()
     }))
     .get('/getChatUserList', errorWrapper(async (req: Request, res: Response) => {
         const { offset, limit } = parseQuery(req.query);
-        const users = await getChatUserList(req.session.user.id, offset, limit, req.query.exclude);
+        const users = await getChatUserList(req.session.user.id, +offset, +limit, req.query.exclude);
         res.json(new Result(users));
     }))
     .get('/getChatedUserList', errorWrapper(async (req: Request, res: Response) => {
         const { offset, limit } = parseQuery(req.query);
-        const users = await getChatedUserList(req.session.user.id, offset, limit, req.query.exclude);
+        const users = await getChatedUserList(req.session.user.id, +offset, +limit, req.query.exclude);
         res.json(new Result(users));
     }))
     .post('/update/:id', Upload.single('avator'), async (req: Request, res: Response) => {

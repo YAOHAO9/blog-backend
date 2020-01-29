@@ -29,11 +29,8 @@ const fetchHtmlByUrl = (url, cookie) => {
     });
 };
 
-const formatDate = (date) => {
-    if (date.indexOf('年') === -1) {
-        date = `${(new Date()).getFullYear()}年${date}`;
-    }
-    const newDate = new Date(date.replace('年', '-').replace('月', '-').replace('日', ''));
+const formatDate = (date: string) => {
+    const newDate = new Date(date.trim());
     if ((newDate + '') === 'Invalid Date') {
         return new Date();
     }
@@ -53,7 +50,14 @@ export const getArticleAndSaveByUrl = async (url, cookie, textAreaId, articleTyp
         const url = 'https://segmentfault.com' + note.attribs.href.split('?')[0] + '/edit';
         const html = await fetchHtmlByUrl(url, cookie);
         const $ = cheerio.load(html);
-        const data = markdown.render($(textAreaId)[0].firstChild.data.replace(/$/mg, '  '));
+        let data;
+        if ($(textAreaId)[0] && $(textAreaId)[0].firstChild) {
+            data = markdown.render($(textAreaId)[0].firstChild.data.replace(/$/mg, '  '));
+        } else {
+            data = markdown.render($(textAreaId)[0].attribs.value.replace(/$/mg, '  '));
+
+        }
+
         const origin = 'https://segmentfault.com';
         // tslint:disable-next-line:prefer-const
         let [newHtml, fileIds] = await parseImgSrc(data, origin);
