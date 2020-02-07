@@ -53,14 +53,15 @@ export const sequelize = new Sequelize(Object.assign(Config.sequelize, { operato
 
 export const initializeSequelize = async () => {
     await sequelize.validate();
+    await User.sync({ alter: true });
+    await Moment.sync({ alter: true });
+    await Article.sync({ alter: true });
     await AccessRecord.sync({ alter: true });
     await Archive.sync({ alter: true });
-    await Article.sync({ alter: true });
     await ArticleApprove.sync({ alter: true });
     await ArticleContent.sync({ alter: true });
     await Chat.sync({ alter: true });
     await Discussion.sync({ alter: true });
-    await Moment.sync({ alter: true });
     await MomentApprove.sync({ alter: true });
-    await User.sync({ alter: true });
+
 };

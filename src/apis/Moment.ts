@@ -26,8 +26,6 @@ const router = Router()
         const moment = await new Moment({
             userId: req.session.user.id,
             content: '<p>' + content.replace(/\r\n/g, '<br\/>').replace(/\n/g, '<br\/>') + '<\/p>',
-            disapproves: [],
-            approves: [],
             ip,
         }).save();
         const archives = await saveUploadFiles(req.files, moment.id);
