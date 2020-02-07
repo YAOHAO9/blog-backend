@@ -51,15 +51,12 @@ const router = Router()
     }))
     .get('/segmentFaultNote', errorWrapper(async (req: Request, res: Response) => {
         const articleType = 'segmentFaultNote';
-        await Article.destroy({ where: { type: articleType } });
-        await ArticleContent.destroy({ where: { articleId: null } });
         const articles = await getArticleAndSaveByUrl('https://segmentfault.com/u/yaohao/notes',
             `sf_remember=${req.query.sf_remember}`, '#codeMirror', articleType);
         res.json(new Result(articles));
     }))
     .get('/segmentFaultArticle', errorWrapper(async (req: Request, res: Response) => {
         const articleType = 'segmentFaultArticle';
-        await Article.destroy({ where: { type: articleType } });
         const articles = await getArticleAndSaveByUrl('https://segmentfault.com/u/yaohao/articles',
             `sf_remember=${req.query.sf_remember}`, '#text-hidden', articleType);
         res.json(new Result(articles));

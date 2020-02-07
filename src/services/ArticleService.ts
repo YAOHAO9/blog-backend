@@ -62,15 +62,33 @@ export const getArticleAndSaveByUrl = async (url, cookie, textAreaId, articleTyp
         // tslint:disable-next-line:prefer-const
         let [newHtml, fileIds] = await parseImgSrc(data, origin);
         newHtml = `<div class="markdown">${newHtml.replace(/<\/?(html|head|body)>/g, '')}</div>`;
-        const article = await new Article({
-            userId: (await User.findOne({ where: { isAdmin: true } })).id,
-            title,
-            createdAt,
-            icon: fileIds[0] ? fileIds[0] : null,
-            type: articleType,
-        }).save();
-        const articleContent = await new ArticleContent({ content: newHtml, articleId: article.id }).save();
-        article.content = articleContent;
+
+        let article = await Article.find({
+            where: {
+                title,
+                type: articleType,
+            },
+        });
+
+        if (article) {
+            article.userId = (await User.findOne({ where: { isAdmin: true } })).id;
+            article.icon = fileIds[0] ? fileIds[0] : null;
+            article.save();
+
+            ArticleContent.update({ content: newHtml }, { where: { articleId: article.id } });
+
+        } else {
+            article = await new Article({
+                userId: (await User.findOne({ where: { isAdmin: true } })).id,
+                title,
+                createdAt,
+                icon: fileIds[0] ? fileIds[0] : null,
+                type: articleType,
+            }).save();
+            const articleContent = await new ArticleContent({ content: newHtml, articleId: article.id }).save();
+            article.content = articleContent;
+        }
+
         return article;
     });
     return Promise.all(notePromises);
