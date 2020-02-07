@@ -2,6 +2,11 @@ import { Table, ForeignKey, Model, Column, CreatedAt, UpdatedAt } from 'sequeliz
 import Article from './Article.model';
 import User from './User.model';
 
+export enum ApproveStatus {
+    Approve = 1,
+    Disapprove = 2,
+}
+
 @Table
 export default class ArticleApprove extends Model<ArticleApprove> {
 
@@ -12,6 +17,9 @@ export default class ArticleApprove extends Model<ArticleApprove> {
     @ForeignKey(() => User)
     @Column
     public authorId: number;
+
+    @Column
+    public status: ApproveStatus;
 
     @CreatedAt
     public createdAt: Date;

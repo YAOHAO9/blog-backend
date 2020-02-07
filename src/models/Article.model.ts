@@ -33,9 +33,9 @@ export default class Article extends Model<Article>   {
   @HasMany(() => Discussion)
   public discussions: Discussion[];
 
-  public approves: number[];
+  public approves: User[];
 
-  public disapproves: number[];
+  public disapproves: User[];
 
   @CreatedAt
   public createdAt: Date;

@@ -12,6 +12,8 @@ import { parseQuery } from '../utils/Tool';
 import User from '../models/User.model';
 import Discussion from '../models/Discussion.model';
 import { sendMailToAdmin, sendImgMailToAdmin } from '../services/EmailService';
+import MomentApproveService from '../services/MomentApproveService';
+import MomentApprove from '../models/MomentApprove.model';
 
 const router = Router()
     .post('/create', Upload.array('images', 9), errorWrapper(async (req: Request, res: Response) => {
@@ -49,6 +51,8 @@ const router = Router()
         const momentJsons = await Promise.all(moments.map(async (moment) => {
             const momentJson = moment.toJSON();
             momentJson.images = momentJson.images.map((image) => image.id);
+            momentJson.approves = await MomentApproveService.getApproves(momentJson.id);
+            momentJson.disapproves = await MomentApproveService.getDisApproves(momentJson.id);
             return momentJson;
         }));
         return res.json(new Result(momentJsons));
@@ -71,60 +75,28 @@ const router = Router()
         return res.json(new Result(moment));
     }))
     .put('/approve/:momentId', errorWrapper(async (req: Request, res: Response) => {
-        const user = req.session.user;
-        const moment = await Moment.findById(req.param('momentId'));
-        if (!moment.approves) {
-            moment.approves = [];
-        }
-        if (!moment.disapproves) {
-            moment.disapproves = [];
-        }
-        const foundUser = moment.approves.find((approve) => {
-            return approve === user.id;
+        const momentId = +req.param('momentId');
+        const userId = req.session.user.id;
+        const status = req.body.action;
+
+        await MomentApprove.destroy({
+            where: {
+                userId,
+                momentId,
+            },
         });
-        if (foundUser) {
-            moment.approves.splice(moment.approves.indexOf(user.id), 1);
-        } else {
-            moment.approves.push(user.id);
+
+        if (status !== 0) {
+            await MomentApprove.create({
+                userId,
+                momentId,
+                status,
+            });
         }
-        if (moment.disapproves.indexOf(user.id) >= 0) {
-            moment.disapproves.splice(moment.disapproves.indexOf(user.id), 1);
-        }
-        // This is required, otherwise the data would not be stored.
-        moment.approves = [...moment.approves];
-        moment.disapproves = [...moment.disapproves];
-        await moment.save();
-        res.json(new Result(moment));
+
+        res.json(new Result(status));
         await sendMailToAdmin(req.session.user,
-            `${req.session.user.name} likes the moment:${moment.id}`, moment.content);
-    }))
-    .put('/disapprove/:momentId', errorWrapper(async (req: Request, res: Response) => {
-        const user = req.session.user;
-        const moment = await Moment.findById(req.param('momentId'));
-        if (!moment.approves) {
-            moment.approves = [];
-        }
-        if (!moment.disapproves) {
-            moment.disapproves = [];
-        }
-        const foundUser = moment.disapproves.find((approve) => {
-            return approve === user.id;
-        });
-        if (foundUser) {
-            moment.disapproves.splice(moment.disapproves.indexOf(user.id), 1);
-        } else {
-            moment.disapproves.push(user.id);
-        }
-        if (moment.approves.indexOf(user.id) >= 0) {
-            moment.approves.splice(moment.approves.indexOf(user.id), 1);
-        }
-        // This is required, otherwise the data would not be stored.
-        moment.approves = [...moment.approves];
-        moment.disapproves = [...moment.disapproves];
-        await moment.save();
-        res.json(new Result(moment));
-        await sendMailToAdmin(req.session.user,
-            ` ${req.session.user.name} dislikes the moment:${moment.id}`, moment.content);
+            `${req.session.user.name} likes the moment:${momentId}`, `UserId: ${req.session.user.id}`);
     }));
 
 app.use('/api/moment', router);

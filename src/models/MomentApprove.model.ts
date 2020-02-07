@@ -2,6 +2,10 @@ import { Table, ForeignKey, Model, Column, CreatedAt, UpdatedAt } from 'sequeliz
 import User from './User.model';
 import Moment from './Moment.model';
 
+export enum ApproveStatus {
+    Approve = 1,
+    Disapprove = 2,
+}
 @Table
 export default class MomentApprove extends Model<MomentApprove> {
 
@@ -15,6 +19,9 @@ export default class MomentApprove extends Model<MomentApprove> {
 
     @CreatedAt
     public createdAt: Date;
+
+    @Column
+    public status: ApproveStatus;
 
     @UpdatedAt
     public updatedAt: Date;

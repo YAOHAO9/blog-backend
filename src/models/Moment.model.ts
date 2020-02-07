@@ -30,10 +30,8 @@ export default class Moment extends Model<Moment> {
   @HasMany(() => Discussion)
   public discussions: Discussion[];
 
-  // @Column(DataType.ARRAY(DataType.INTEGER))
   public approves: number[];
 
-  // @Column(DataType.ARRAY(DataType.INTEGER))
   public disapproves: number[];
 
   @CreatedAt

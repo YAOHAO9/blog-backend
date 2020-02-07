@@ -4,12 +4,10 @@ import AccessRecord from '../models/AccessRecord.model';
 import Archive from '../models/Archive.model';
 import Article from '../models/Article.model';
 import ArticleApprove from '../models/ArticleApprove.model';
-import ArticleDisapprove from '../models/ArticleDisapprove.model';
 import Chat from '../models/Chat.model';
 import Discussion from '../models/Discussion.model';
 import Moment from '../models/Moment.model';
 import MomentApprove from '../models/MomentApprove.model';
-import MomentDisapprove from '../models/MomentDisapprove.model';
 import User from '../models/User.model';
 import ArticleContent from '../models/ArticleContent.model';
 
@@ -60,11 +58,9 @@ export const initializeSequelize = async () => {
     await Article.sync({ alter: true });
     await ArticleApprove.sync({ alter: true });
     await ArticleContent.sync({ alter: true });
-    await ArticleDisapprove.sync({ alter: true });
     await Chat.sync({ alter: true });
     await Discussion.sync({ alter: true });
     await Moment.sync({ alter: true });
     await MomentApprove.sync({ alter: true });
-    await MomentDisapprove.sync({ alter: true });
     await User.sync({ alter: true });
 };
