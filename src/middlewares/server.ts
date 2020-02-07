@@ -14,7 +14,7 @@ export const errorWrapper = (handler: RequestHandler): RequestHandler => {
 
 export const errorHandler = (e: Error, _: Request, res: Response, next: () => void) => {
     if (e) {
-        console.error(e);
+        console.error(e.stack);
         return res.status(500).json(new Result(e));
     }
     return next();

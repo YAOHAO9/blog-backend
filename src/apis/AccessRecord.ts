@@ -14,7 +14,13 @@ const router = Router()
         if (req.session.user.isAdmin) {
             return res.json();
         }
-        const ip = getClientIp(req);
+        let ip;
+        try {
+            ip = await getLocationByIp(getClientIp(req));
+        } catch (e) {
+            //
+        }
+
         await new AccessRecord(
             Object.assign(
                 req.body,
@@ -25,8 +31,8 @@ const router = Router()
                     date,
                     params: JSON.stringify(req.body.params),
                 },
-            ))
-            .save();
+            ));
+        // .save();
         return res.end();
     }))
     .get('/format', errorWrapper(async (req: Request, res: Response) => {

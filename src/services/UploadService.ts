@@ -26,11 +26,11 @@ const readFileHash = (filePath) => {
 };
 export const saveUploadFile = async (file: any, momentId?: number): Promise<Archive> => {
     file.momentId = momentId;
-    const hash = await readFileHash(file.path);
-    file.filename = hash;
-    const newPath = path.join(file.destination, hash);
+    const fileHash = await readFileHash(file.path);
+    file.filename = fileHash;
+    const newPath = path.join(file.destination, fileHash);
     fs.renameSync(file.path, newPath);
-    file.path = newPath;
+    file.path = fileHash;
     return new Archive(file).save();
 };
 

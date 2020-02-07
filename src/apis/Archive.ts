@@ -7,6 +7,7 @@ import Archive from '../models/Archive.model';
 import { fs, path } from '../utils/Tool';
 import { promisify } from 'bluebird';
 import * as QRCode from 'qrcode';
+import Config from '../config';
 
 const router = Router()
     .get('/customQrcode', errorWrapper(async (req: Request, res: Response) => {
@@ -20,7 +21,7 @@ const router = Router()
         if (!file) {
             return res.status(404).json(new Result(new Error('Not found.')));
         }
-        return fs.createReadStream(path.resolve(file.path)).pipe(res);
+        return fs.createReadStream(path.resolve(`${Config.uploadPath}/${file.path}`)).pipe(res);
     }));
 
 app.use('/api/archive', router);

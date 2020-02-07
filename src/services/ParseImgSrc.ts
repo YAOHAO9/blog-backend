@@ -22,7 +22,8 @@ const parseImgSrc = async (content: string, baseHttp: string = null) => {
         }
         const task = new Promise<string>(async (resolve, reject) => {
             try {
-                const filePath = path.join(Config.uploadPath, hash(src));
+                const fileHash = hash(src);
+                const filePath = path.join(Config.uploadPath, fileHash);
                 const writeStream = fs.createWriteStream(filePath);
                 superagent(src).pipe(writeStream);
                 writeStream.on('finish', () => {
@@ -35,11 +36,11 @@ const parseImgSrc = async (content: string, baseHttp: string = null) => {
                 reject(e);
             }
         })
-            .then(async (filePath) => {
-                let archive = await Archive.findOne({ where: { path: filePath } });
+            .then(async (fileHash) => {
+                let archive = await Archive.findOne({ where: { path: fileHash } });
                 if (!archive) {
                     archive = await new Archive({
-                        path: filePath,
+                        path: fileHash,
                         mimetype: 'image/jpeg',
                         destination: Config.uploadPath,
                         filename: src,
