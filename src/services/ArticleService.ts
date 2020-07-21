@@ -39,25 +39,23 @@ const formatDate = (date) => {
     }
     return newDate;
 };
-
+/**
+ * @param url 文章列表页Url
+ * @param cookie cookie
+ * @param textAreaId markdown所在的<textarea>
+ * @param articleType 类型：文章或者笔记
+ */
 export const getArticleAndSaveByUrl = async (url, cookie, textAreaId, articleType) => {
-    const html = await fetchHtmlByUrl(url, cookie);
-    const $ = cheerio.load(html);
-    const list = $('body > div.profile > div > div > div > div.col-md-10.profile-mine > ul > li');
-    const notePromises = (Array(list.length).fill(0)).map(async (_, index) => {
-        const item = cheerio.load(list[index]);
-        const title = item('div > div.profile-mine__content--title-warp > a')[0].firstChild.data;
-        const createdAt: Date = formatDate(
-            item('div > div.col-md-2 > span.profile-mine__content--date')[0].firstChild.data);
-        const note = item('div > div.profile-mine__content--title-warp > a')[0];
-        const url = 'https://segmentfault.com' + note.attribs.href.split('?')[0] + '/edit';
-        const html = await fetchHtmlByUrl(url, cookie);
-        const $ = cheerio.load(html);
-        const data = markdown.render($(textAreaId)[0].firstChild.data.replace(/$/mg, '  '));
-        const origin = 'https://segmentfault.com';
+    // 获取html
+    const notes = await getArticle(url, cookie, textAreaId);
+
+    return notes.map(async ({ title, createdAt, data }) => {
+        // 解析文章中的图片并下载
         // tslint:disable-next-line:prefer-const
-        let [newHtml, fileIds] = await parseImgSrc(data, origin);
+        let [newHtml, fileIds] = await parseImgSrc(markdown.render(data), 'https://segmentfault.com');
+        // 替换掉无用的标签
         newHtml = `<div class="markdown">${newHtml.replace(/<\/?(html|head|body)>/g, '')}</div>`;
+        // 保存文章
         const article = await new Article({
             userId: (await User.findOne({ where: { isAdmin: true } })).id,
             title,
@@ -65,11 +63,11 @@ export const getArticleAndSaveByUrl = async (url, cookie, textAreaId, articleTyp
             icon: fileIds[0] ? fileIds[0] : null,
             type: articleType,
         }).save();
+        // 保存文章内容详情
         const articleContent = await new ArticleContent({ content: newHtml, articleId: article.id }).save();
         article.content = articleContent;
         return article;
     });
-    return Promise.all(notePromises);
 };
 
 export const bgImgUrl = async (content: string) => {
@@ -107,4 +105,52 @@ export const bgImgUrl = async (content: string) => {
     });
     await Promise.all(tasks);
     return content;
+};
+
+export const getArticle = async (url: any, cookie: any, textAreaId: any) => {
+    let page = 1;
+
+    const notePromises: Array<Promise<{
+        title: any;
+        createdAt: Date;
+        data: any;
+    }>> = [];
+
+    while (true) {
+        const html = await fetchHtmlByUrl(`${url}?page=${page}`, cookie);
+        // cheerio加载html
+        const $ = cheerio.load(html);
+        // 获取文章列表ul
+        const list = $('body > div.profile > div > div > div > div.col-md-10.profile-mine > ul > li');
+        // 解析所有文章或者笔记
+        const tasks = (Array(list.length).fill(0)).map(async (_, index) => {
+            // 获取每个li
+            const item = cheerio.load(list[index]);
+            // 获取标题
+            const title = item('div > div.profile-mine__content--title-warp > a')[0].firstChild.data;
+            // 解析创建时间
+            const createdAt: Date = formatDate(
+                item('div > div.col-md-2 > span.profile-mine__content--date')[0].firstChild.data);
+            // 获取文章id所在的<a>标签
+            const note = item('div > div.profile-mine__content--title-warp > a')[0];
+            // 获取编辑状态链接
+            const url = 'https://segmentfault.com' + note.attribs.href.split('?')[0] + '/edit';
+            // 获取编辑状态下的网页
+            const html = await fetchHtmlByUrl(url, cookie);
+            // cheerio加载html
+            const $ = cheerio.load(html);
+
+            const data = $(textAreaId)[0].firstChild.data.replace(/$/mg, '  ');
+
+            return { title, createdAt, data };
+        });
+        if (tasks.length === 0) {
+            break;
+        }
+        page++;
+        notePromises.push(...tasks);
+    }
+
+    return Promise.all(notePromises);
+
 };
