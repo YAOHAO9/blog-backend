@@ -19,6 +19,9 @@
 &#8195; -f 强制  
 &#8195; -s 创建软链接  
 &#8195; -a -pdr  
+&#8195; cp -rf originPine/. pine 拷贝originPine下的所有文件到pine目录  
+&#8195; cp -rf originPine/* pine 拷贝originPine下的除了隐藏目录的文件到pine目录   
+&#8195; cp -rf originPine pine 1、如果pine目录存在，则拷贝originPine到pine目录下。2、如果不存在pine目录，则相mv originPine pine  
 **mv src dest 移动或者重命名**  
 &#8195; -u 更新  
 **rm 删除文件**  

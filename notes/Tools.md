@@ -52,7 +52,10 @@ FFCreator 简单视频制作工具
 ```  
 夜神  
 ```  
-  
+### GSAP，专业的Web动画库  
+```  
+tween  
+```  
 ### Code snippets  
 ```  
 function getProperty<T, K extends keyof T>(obj: T, key: K) {  

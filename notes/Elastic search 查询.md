@@ -182,4 +182,41 @@ POST http://192.168.3.101:9200/game_error/_mapping/
   }  
 }  
 ```  
+### 倒排索引与doc_value  
+```bash  
+倒排索引 # 检索  
+doc_value # 采用列式存储，便于压缩。适用于聚合、排序、脚本等操作  
+```  
+  
+### 索引类型  
+```bash  
+"index":  
+    analyzed # 全文索引，模糊搜索  
+    not_analyzed # 精确索引，精确搜索  
+    no # 不索引，不能被搜索  
+"include_in_all"：false # 不加入_all搜素  
+"_source": {  
+    "enabled":  false # 不保存文档，只能搜索出Id，然后再去查找其他库  
+}  
+```  
+  
+### doc_value  
+```bash  
+#Doc Values 默认对除了analyzed的所有字段启用。也就是说对数字、地理坐标、日期、IP 和不分析（ not_analyzed ）字符类型都会默认开启  
+"doc_values": false # 关闭以节省磁盘空间  
+```  
+  
+### 动态映射  
+```bash  
+"dynamic":  
+    true # 根据新字段推断mapping类型，并加入mapping  
+    false # 忽略该字段  
+    strict # 报错  
+```  
+  
+### 其他  
+```bash  
+reindex # 命令重新索引  
+copy_to # 拷贝一个字段到另一个字段  
+```  
   

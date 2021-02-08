@@ -1,3 +1,6 @@
+### 文档文章  
+https://chai2010.cn/advanced-go-programming-book/  
+https://juejin.cn/post/6896453718527442951  
 ###  
 ```  
 //go:noinline   
@@ -5,7 +8,9 @@
 //go:noescape  
 //go:norace  
 go run -race main.go 利用 -race 来使编译器报告数据竞争问题  
+runtime.Gosched()用于让出CPU时间片  
 ```  
+  
 ### gopls 安装  
 ```bash  
 git clone https://github.com/golang/tools  
@@ -129,34 +134,107 @@ if ok {
 ```   
   
 ### 反射  
+```go  
+package main  
+  
+import (  
+	"fmt"  
+	"reflect"  
+)  
+  
+type person struct {  
+	Name string  
+	age  int  
+}  
+  
+func (p person) Speak(words string) {  
+	fmt.Println(p.Name, "speak", words)  
+}  
+  
+func main() {  
+	p := person{  
+		Name: "小明", age: 18,  
+	}  
+  
+	if reflect.TypeOf(p).Kind() == reflect.Ptr { // Bool Int Int8 Int16 Int32 Int64 Uint Uint8 Uint16 Uint32 Uint64 Uintptr Float32 Float64 Complex64 Complex128 Array Chan Func Interface Map Ptr Slice String Struct UnsafePointer  
+  
+		pValue := reflect.ValueOf(p)  
+  
+		// IsNil  
+		fmt.Println(pValue.IsNil())  
+  
+		// IsValid  
+		fmt.Println(pValue.IsValid())  
+  
+		// IsZero  
+		fmt.Println(pValue.IsZero())  
+  
+		// 获取指针指向的对象的reflect.Value(还是reflect.Value)  
+		fmt.Println(pValue.Elem())  
+  
+		// true  
+		fmt.Println(pValue.Elem().Addr() == pValue)  
+  
+		// Pointer 地址  
+		fmt.Println(pValue.Pointer())  
+  
+		// 转换为Interface  
+		fmt.Println(pValue.Interface())  
+  
+	} else if reflect.TypeOf(p).Kind() == reflect.Struct {  
+  
+		pValue := reflect.ValueOf(p)  
+  
+		// IsValid  
+		fmt.Println(pValue.IsValid())  
+  
+		// IsZero  
+		fmt.Println(pValue.IsZero())  
+  
+		// 转换为Interface  
+		fmt.Println(pValue.Interface())  
+  
+		if pValue.CanAddr() {  
+			// 获取此struct指针的reflect.Value(还是reflect.Value)  
+			fmt.Println(pValue.Addr())  
+		} else {  
+			fmt.Println("不可获得该对象的指针")  
+		}  
+  
+		for i := 0; i < pValue.NumField(); i++ {  
+			// 字段名在Kind上  
+			fmt.Println(pValue.Type().Field(i).Name+":", pValue.Field(i))  
+		}  
+  
+		// FieldByName  
+		fmt.Println("FieldByName: age", pValue.FieldByName("age"))  
+  
+		// MethodByName  
+		method := pValue.MethodByName("Speak")  
+		method.Call([]reflect.Value{reflect.ValueOf("嘿嘿嘿")})  
+  
+		params := []reflect.Value{}  
+		for i := 0; i < method.Type().NumIn(); i++ {  
+			// 参数类型  
+			fmt.Println(method.Type().In(i).Name())  
+			// 实例化参数获取其指针（注意：如果参数是指针，则此ins为指针的指针）  
+			ins := reflect.New(method.Type().In(i)) // 不过这个为此参数的零值  
+  
+			value, ok := ins.Interface().(*string)  
+			if ok {  
+				*value = "修改类型" // 赋值  
+			}  
+  
+			params = append(params, ins.Elem())  
+		}  
+		method.Call(params) // 函数调用  
+	}  
+}  
 ```  
-reflect.ValueOf(a).Type() 相当于 reflect.Typeof(a)  
-  
-type user struct {  
-	id   int  
-	name string  
-}  
-func (u user) Speak(s string) {  
-	fmt.Printf("I wanna say %s\n", s)  
-}  
-  
-u := user{id: 1001, name: "xxx"}  
-// 类型判断  
-fmt.Sprint(reflect.TypeOf(u)) // user  
-reflect.TypeOf(u).String() // user  
-fmt.Printf("%T", map[string]string{"aa": "123"}) // map[string]string  
-  
-// 基础类型判断  
-fmt.Sprint(reflect.TypeOf(u).Kind())  // struct  
-fmt.Sprint(reflect.TypeOf(map[string]string{"aa": "123"}).Kind()) // map  
-  
-// 根据key获取value  
-v := reflect.ValueOf(u)  
-v.FieldByName("name").String() // v.FieldByName("id").Int()  
-  
-// 函数调用  
-params := []reflect.Value{reflect.ValueOf("嘿嘿嘿")}  
-v.MethodByName("Speak").Call(params)  
+```go  
+paramType := reflect.TypeOf(p)  
+// 判断是否是 []byte类型  
+paramType.Kind() == reflect.Slice && paramType.Elem().Kind() == reflect.Uint8  
 ```  
 ### 遍历  
 ```  
@@ -434,3 +512,63 @@ replace golang.org/x/crypto v0.0.0-20190313024323-a1f597ede03a => github.com/gol
   
 ```  
   
+## [pprof](https://juejin.cn/post/6844904079525675016)  
+#### runtime/pprof  
+```go  
+file, err := os.Create("./cpu.pprof")  
+if err != nil {  
+    fmt.Printf("create cpu pprof failed, err:%v\n", err)  
+    return  
+}  
+pprof.StartCPUProfile(file)  
+defer pprof.StopCPUProfile()  
+```  
+#### net/http/pprof  
+```go  
+import _ "net/http/pprof"  
+http.ListenAndServe("0.0.0.0:6060", nil)   
+```  
+  
+#### 命令行分析  
+```bash  
+go tool pprof cpu.pprof # 进入交互模式  
+  ：list main # 查看main函数各语句消耗时间  
+  ：svg # 输出svg  
+  : web # 打开浏览器查看svg  
+  
+go tool pprof http://localhost:6060/debug/pprof/profile # cpu  
+go tool pprof http://localhost:6060/debug/pprof/heap # 内存  
+go tool pprof http://localhost:6060/debug/pprof/allocs # 内存分配  
+go tool pprof http://localhost:6060/debug/pprof/goroutine # 查看协程  
+# runtime.SetMutexProfileFraction(1) 锁调用跟踪  
+go tool pprof localhost:6060/debug/pprof/mutex # 锁竞争  
+# runtime.SetBlockProfileRate(1) 阻塞操作跟踪  
+go tool pprof localhost:6060/debug/pprof/block # 阻塞（一般是channel阻塞）  
+  
+# 再配合这3个子命令： top->list FuncName->web  
+```  
+  
+#### 浏览器分析（推荐）   
+```bash  
+go tool pprof -http=:6060 cpu.prof  
+```  
+  
+#### gc 字段说明  
+```go  
+GODEBUG=gctrace=1 go run main.go  
+// gc 1 @0.033s 0%: 0+1.0+0 ms clock, 0+0/0/0+0 ms cpu, 16->16->0 MB, 17 MB goal, 1 P  
+// gc # @#s #%: #+#+# ms clock, #+#/#/#+# ms cpu, #->#-># MB, # MB goal, # P  
+// gc # GC id,每次GC加一  
+// @#s 程序启动后的时间，单位秒  
+// #% 程序启动后GC所用的时间比  
+// #+...+# 此次GC所用的wall-clock/CPU时间  
+// #->#-># MB GC开始时的堆大小, GC结束时的堆大小, 活着的(live)堆大小  
+// # MB goal 总的堆大小  
+// # P CPU使用数  
+```  
+  
+#### 测试  
+```bash  
+#执行测试时,加上 -cpuprofile cpu.prof或-memprofile=mem.prof可直接采集数据  
+go test -bench . -cpuprofile cpu.prof  
+```  

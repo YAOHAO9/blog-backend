@@ -1,28 +1,73 @@
-### openssl 命令 https://www.jianshu.com/p/e311a6537467  
-### 生成密钥  
+#### 证书标准  
 ```  
-openssl genrsa -out private.key 2048 # 生成私钥:   
-openssl rsa -in private.key -pubout -out public.key # 根据私钥生成公钥 -pubout  
+X.509  
 ```  
-### 创建自签证书 https://www.jianshu.com/p/79c284e826fa   
   
-1、 查看配置文件  
-	less -N /etc/pki/tls/openssl.cnf  
-2、 创建所需文件夹  
-	mkdir -pv /etc/pki/CA/{certs,crl,newcerts,private}  
-	touch /etc/pki/CA/{serial,index.txt}  
-	echo 01 > /etc/pki/CA/serial # 指明证书的开始编号  
+#### 编码格式  
+```bash  
+#1、pem (-----BEGIN 文件类型----- ...... -----END 文件类型-----)  
+#2、der (二进制格式)  
   
-3、 生成私钥  
-	openssl genrsa -out /etc/pki/CA/private/cakey.pem 4096  
-4、 创建自签证书  
-    openssl req -new -x509 -key /etc/pki/CA/private/cakey.pem  -out /etc/pki/CA/cacert.pem -days 3650  
-		#req          产生证书签发申请命令  
-		#-new         表示新请求。  
-		#-key         密钥,这里为key文件  
-		#-out         输出路径,这里为csr文件  
-5、 为用户颁发证书  
-（未完，待续）  
+#pem => der:  
+openssl x509 -in cert.pem -outform der -out cert.der  
+#der => pem:  
+openssl x509 -in cert.der -outform pem -out cert.pem -inform der  
+```  
+  
+#### 文件扩展名  
+```bash  
+1、.key 密钥  
+2、.csr 证书请求 CERTIFICATE REQUEST  
+3、.crt（.cer）证书 CERTIFICATE  
+4、.pem pem编码的文件  
+5、.der der编码的文件  
+  
+# 查看key详情  
+openssl rsa -in certificate.key -text -noout        # 查看key详情  
+openssl rsa -in cert-public.key -text -noout -pubin # 查看公钥详情  
+        req                                         # 查看crt详情  
+        x509                                        # 查看证书详情  
+  
+openssl rsa -in certificate.key -text -noout -inform der # 查看der格式的key详情  
+openssl rsa -in cert-public.key -text -noout -inform der # 查看der格式的公钥详情  
+        req                                              # 查看der格式的crt详情  
+        x509                                             # 查看der格式的证书详情  
+```  
+  
+#### 证书申请  
+```bash  
+# 新建私钥  
+openssl genrsa -out domain.key 2048   
+  
+# 通过key证书请求  
+openssl req -new -key domain.key -out domain.csr # Common Name(CN) Organization(O) CN 是用户名，O 是该用户归属的组。需要填写  
+  
+# 自签证书  
+openssl x509 -signkey domain.key -in domain.csr -req -days 365 -out domain.crt  
+  
+# 通过key和证书找回证书请求  
+openssl x509 -in domain.crt -signkey domain.key -x509toreq -out domain.csr  
+```  
+  
+#### 加密解密  
+```bash  
+# 生成公钥  
+openssl rsa -in domain.key -pubout -out domain.pub.key  
+  
+# 加密  
+openssl rsautl -encrypt -inkey domain.key -in data.txt -out data.txt.en # 私钥加密  
+openssl rsautl -encrypt -inkey domain.pub.key -in data.txt -out data.txt.en -pubin # 公钥加密  
+  
+# 解密  
+openssl rsautl -decrypt -inkey domain.key -in data.txt.en -out data.txt.en.de # 私钥解密  
+  
+# 使用私钥数据签名：  
+openssl rsautl -sign -in data.txt -inkey domain.key -out sign.data  
+  
+# 恢复签名数据：  
+openssl rsautl -verify -in sign.data -inkey domain.key # 私钥恢复  
+openssl rsautl -verify -in sign.data -inkey domain.pub.key -pubin # 公钥恢复  
+```  
   
 ### 查看证书信息  
 openssl x509 -in /etc/pki/CA/certs/httpd.crt -noout -serial -dates -subject  

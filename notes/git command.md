@@ -41,7 +41,7 @@ git checkout branch 切换分支
 ```  
 git clean -f 移除未追踪的文件  
 git clean -fd 移除未追踪的文件和文件夹  
-git clean -nfd 移除并查看已被移除的记录  
+git clean -nfd 移除并查看将被移除的记录  
 ```  
   
 ### 将暂存区的文件提交到本地仓库  
@@ -62,7 +62,7 @@ git checkout - 切换到上一个分支
 git branch --track branch remote-branch 新建分支并追踪  
 git branch --set-upstream-to=origin/branch branch  建立追踪信息  
 git branch -d branch 删除分支  
-git branch -dr origin/branch 删除远程分支  
+git branch -dr origin/branch 删除本地的远程分支  
 ```  
   
 ### 信息  
@@ -73,8 +73,8 @@ git log -p files 查看指定文件的每一次diff
 git log --graph 树状图显示合并记录  
 git log --format="%an %ai %s %h" 分别显示每次提交的作者、时间、comment、短hash  
 git log -n n为大于1的数字，表示显示n条记录  
-git diff 查看工作区与暂存区的区别  
-git diff --cached 查看暂存区与仓库的区别  
+git diff 查看工作区与当前HEAD的区别，git diff commit 查看工作区与commit分支的区别，git diff commit1 commit2,比较两个分支的区别  
+git diff --cached 查看暂存区与当前HEAD的区别  
 ```  
   
 ### 远程同步  
@@ -96,7 +96,7 @@ git remote prune origin 删除“本地的远程分支”存在而真正的远�
   
 ### 其他  
 ```  
-git stash 将未提交的文件保存  
+git stash push -u # 将未提交的文件保存，-u表示保存Untracked的文件  
 git stash list   
 git stash pop 将stash保存的最新文件恢复，并从list中删除  
 git stash apply 1 将stash@{1}保存的文件恢复，但不删除  
@@ -150,10 +150,13 @@ git config --global core.safecrlf true
 git config --global core.safecrlf false     
 # 提交包含混合换行符的文件时给出警告  
 git config --global core.safecrlf warn  
+# 设置成大小写敏感  
+git config --global core.ignorecase false  
 ```  
   
 ### 查找commit  
 ```  
 git log --graph --all // 查看所有分支和所有commit  
 git fsck --lost-found | grep commit | awk '{print $3}' | xargs -n1 -I ? git log  -n 1 ? // 查找没有分支的commit  
+git reflog // 查看commit日志  
 ```  

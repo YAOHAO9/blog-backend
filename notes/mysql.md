@@ -170,4 +170,25 @@ let sql = `INSERT INTO mem_roomuser(id,rid,gameid,bettype) values(${uid},${rid},
 // 多行更新时  
 let sql = `INSERT INTO mem_roomuser(id,rid,gameid,bettype) values(${uid},${rid},${gameid},${bettype}) (${uid2},${rid2},${gameid2},${bettype2}) on DUPLICATE key update rid=VALUES(uid),gameid=VALUES(gameid),bettype=VALUES(bettype)`  
 ```  
-  
+### redis缓存  
+#### 缓存穿透（redis和数据库都没有数据）  
+```bash  
+#解决方案1: 缓存空值并设置过期时间  
+#解决方案2: Bloom Filter （通过K个散列函数将这个元素映射成一个位数组中的K个点、如果这些点有任何一个0，则被检元素一定不在；如果都是1，则被检元素很可能在）  
+#   优点：节省空间、时间复杂度低   
+#   缺点：准确率有误、不能删除元素  
+```  
+#### 缓存击穿 （热点数据过期后流量打到数据库）  
+```bash  
+#解决方案1: 尽量不过期  
+#解决方案2：互斥锁、分布式锁  
+```  
+#### 缓存雪崩 （大批量数据同时过期）  
+```bash  
+#解决方案：打散过期时间  
+```  
+#### 缓存预热 （优先保证热点数据进行提前加载到缓存）  
+#### 缓存降级 （只读缓存、不读数据库）  
+```bash  
+#缺点：数据一致性不能保证  
+```  

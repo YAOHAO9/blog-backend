@@ -136,6 +136,7 @@ nohub + 命令 + &：后台运行，且不绑定shell（即退出shell，不会�
     find . -ctime -N # 查找N天内修改过的文件  
     	   -perm 644 # 查找权限为644的文件  
            -exec command {} \; # 将查找出的文件用command执行，注意：{} \; 为固定格式不可省略  
+    find . -maxdepth 2 -name "*.log" | xargs rm -rf # 可以用xargs替代exec命令  
              
 ```  
   
@@ -145,14 +146,14 @@ nohub + 命令 + &：后台运行，且不绑定shell（即退出shell，不会�
    cat test.txt | xargs -n3 # 将输入的内容转成每3个一行  
    echo "nameXnameXnameXname" | xargs -dX -n2 # 使用X将字符串分割，并以每行两个进行显示  
    ls *.jpg | xargs -n1 -I ? cp ? /data/images	# 拷贝所有图片到/data/images下，？为占位符，可以自由替换成其他字符(注：-n1不能少)  
-             
+   ls | xargs rm -rf # 相当于 ls | xargs -n1 -I ? rm -rf ?   
 ```  
   
 ## sed 非交互式编辑器  
 ```  
 # 删除行  
 sed '1,3d' t.txt # 删除1-3行  
-sed '/a\|b/d' t.txt # 删除包含a或b的行  
+sed '/a\|b/d' t.txt # 删除包含a或b的行 sed '/[ad]/d' t.txt  
   
 # 新增行  
 sed '1!a Hello world!' t.txt # 在除了第1行外的其他行后新增一行Hello world!  
@@ -173,13 +174,22 @@ sed '/^A/,+3s/y/Y/g' t.txt # 将以A开头的行以及下面三行中的y替换�
   
 # 上面的操作都不会影响到源文件，需要将修改替换掉源文件的的内容需要： sed -i '1d' t.txt 查看t.txt 第一行被删除  
   
-sed -i '/serversConfig/,/}/ s/aaa/bbb/g' /opt/project/.dw25Config.json #替换包含“serversConfig”的行到包含“}”行中的aaa为bbb  
+sed -i '/serversConfig/,/}/ s/aaa/bbb/gi' /opt/project/.dw25Config.json #替换包含“serversConfig”的行到包含“}”行中的aaa为bbb，（aaa大小写都可以）  
   
 sed -n '/a/p' t.txt # 输出包含a的行（注意：-n不能少，否则会输出t.txt中的所有行，并且包含a的行输出两次）   
 sed -i '/a/p' t.txt # 利用上述特性可以复制包含a的行  
   
 git status | sed -n "/^Untracked files/,/^no changes/p" # 输出Untracked files到no changes的行  
 echo 'aaaaa' | sed -e 's/a/b/g' -e 's/b/c/3g' # aaaaa => bbbbb => bbccc  注：3g表示替换一行中匹配的字段大于等于第三次的  
+  
+# 多行模式  
+g、G：get 保持空间=>模式空间，小写覆盖、大写追加  
+h、H：get 模式空间=>保持空间，小写覆盖、大写追加  
+N：将下一行追加到模式空间  
+  
+# 替换掉所有换行符  
+cat john.crt | base64 | sed ':loop;N;s/\n//;bloop' #:loop 表示设定一个标签，N 追加下一行，形成新的一行，然后将换行符替换为"", bloop 表示跳转到标签loop处继续执行  
+  
 ```  
 ## iptables  
 ```  
@@ -216,7 +226,6 @@ drop_caches的值可以是0-3之间的数字，代表不同的含义：
   
 释放完内存后改回去让系统重新自动分配内存。  
 echo 0 >/proc/sys/vm/drop_caches  
-  
   
 ```  
   
@@ -296,3 +305,28 @@ lsof +d .		# 查看当前文件下的运行的相关进程
 #### windows  
 	taskkill -pid 25064 -f  # kill进程号为25064的进程  
 	taskkill -im node.exe -f #  kill所有node进程  
+  
+## perf  
+#### perf record  
+```bash  
+perf record -F 99 -p 13204 -g -- sleep 30  
+#perf record表示记录，-F 99表示每秒99次，-p 13204是进程号，即对哪个进程进行分析，-g表示记录调用栈，sleep 30则是持续30秒, 最终生成perf.data文件  
+perf record -F 99 -p `pgrep -n node` -g -- sleep 30  
+# pgrep -n node 输出最新的node进程的进程ID  
+```  
+#### perf report  
+```bash  
+sudo perf report -n --stdio  
+# 控制台显示、函数调用关系及耗时占比  
+```  
+#### perf script  
+```bash  
+#将perf.data输出可读性文本:out.perf  
+```  
+#### 生成火焰图  
+```bash  
+https://github.com/brendangregg/FlameGraph.git  
+./stackcollapse-perf.pl out.perf > out.folded # 相关文件折叠成一行  
+./flamegraph.pl out.folded > out.svg # 生成svg火焰图  
+grep cpuid out.folded | ./flamegraph.pl > cpuid.svg # 因为相关的消息都已经折叠成行，所以可以使用grep选择需要的信息  
+```  

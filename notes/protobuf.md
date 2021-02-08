@@ -11,6 +11,10 @@ message AwesomeMessage {
     optional  int32 age = 3;   
 }  
 ```  
+### 安装protoc  
+```  
+https://github.com/protocolbuffers/protobuf/releases  
+```  
 ### command script  
 ```bash  
 ./node_modules/.bin/pbjs -t static-module -w commonjs -o dist/compiled.js proto/*.proto  
